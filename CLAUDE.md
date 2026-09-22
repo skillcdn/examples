@@ -18,7 +18,8 @@ This repository holds example skills and document sets that SkillCDN serves as a
 4. **Skills declare; they never require executing repository code.** A `scripts/` directory inside a skill is optional help for agents that run locally. SkillCDN serves it as text. The skill must work from `SKILL.md` and `references/` alone.
 5. **Skills spend only with consent.** Any step that costs the user money or credits is estimated first and gated on their approval. See [docs/shared-rules.md](docs/shared-rules.md).
 6. **No pinned versions of models, products or APIs.** A skill tells the agent how to discover the latest through the tool's own catalog and how to choose among candidates. A dated snapshot may illustrate a number, marked as illustrative.
-7. **Each skill is self-contained.** It may be mounted alone (`.../examples/skills/<name>`), so it links only inside its own directory and restates the shared rules it depends on.
+7. **Each skill is self-contained.** It may be mounted alone (`.../examples/skills/<name>`), so it links only inside its own directory (`scripts/check.mjs` rejects a link that leaves it) and restates the shared rules it depends on as text.
+8. **The format is SkillCDN's spec, not ours.** The [skill-repo convention](https://github.com/skillcdn/skillcdn/blob/main/docs/specs/skill-repo.md) is normative for layout, front-matter and indexing. This repository does not restate it; `docs/` holds only what it adds on top (style, process, shared rules).
 
 ## Repository map
 
@@ -26,6 +27,7 @@ This repository holds example skills and document sets that SkillCDN serves as a
 skills/        one directory per skill: SKILL.md, references/, assets/, optional scripts/
 documents/     example document sets: Markdown only
 docs/          shared-rules, skill-authoring, adding-examples; later docs/tools/<family>.md
+               (served by SkillCDN like everything else: keep these short and useful to an agent too)
 scripts/       check.mjs (validation; what CI runs)
 .github/       CI (validation, secret scan), pull request template, dependabot for actions only
 ```
@@ -55,7 +57,7 @@ Node.js 24. No install step; the script has no dependencies. Do not add a packag
 - The example is listed in its catalog (`skills/README.md` or `documents/README.md`) and in the root `README.md`.
 - A new tool family has a row in the root `README.md` "Tool families" table.
 - The skill was exercised end to end with the real tool at least once, and what had to be said in chat was folded back into the files.
-- Nothing in rules 1 to 7 is violated.
+- Nothing in rules 1 to 8 is violated.
 
 **Commits and pushes.**
 
@@ -69,7 +71,7 @@ Node.js 24. No install step; the script has no dependencies. Do not add a packag
 |---|---|
 | A skill's behavior, inputs or tools | Its `SKILL.md` and references; its row in `skills/README.md` and the root `README.md` if the one-line summary changed |
 | A rule that applies to every skill | `docs/shared-rules.md`, and the "Working agreement" section of each skill that restates it |
-| How skills are written or checked | `docs/skill-authoring.md`; `scripts/check.mjs` if the rule is mechanical |
+| How skills are written or checked, beyond the spec | `docs/skill-authoring.md`; `scripts/check.mjs` if the rule is mechanical. A change to the format itself belongs in SkillCDN's spec, not here |
 | The process for adding things | `docs/adding-examples.md` |
 | A new tool family | Root `README.md` table; `docs/tools/<family>.md` once two skills share conventions |
 | A durable gotcha you learned the hard way | "Gotchas" below |

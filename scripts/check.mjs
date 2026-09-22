@@ -4,7 +4,8 @@
 //   1. Every SKILL.md has front-matter with a valid `name` and `description`, and the name matches its directory.
 //   2. Every skill is listed in skills/README.md and the root README.md; every document set in documents/README.md.
 //   3. Text files contain no control or invisible characters and no CRLF line endings.
-//   4. Relative links in Markdown point at files that exist inside the repository.
+//   4. Relative links in Markdown point at files that exist inside the repository, and links inside a
+//      skill stay inside that skill's directory (a skill may be mounted alone).
 //   5. JSON assets parse. No rendered media, binaries or secret-looking files are tracked.
 //
 // The rules mirror the skill-repo convention that SkillCDN applies when it indexes a repository, so a
@@ -132,8 +133,24 @@ function checkText(file, text) {
   });
 }
 
+// The nearest ancestor directory that holds a SKILL.md, or null when the file is not inside a skill.
+function skillRootOf(file) {
+  let dir = dirname(file);
+  while (dir.startsWith(root)) {
+    try {
+      statSync(join(dir, "SKILL.md"));
+      return dir;
+    } catch {
+      if (dir === root) return null;
+      dir = dirname(dir);
+    }
+  }
+  return null;
+}
+
 function checkLinks(file, text) {
   const dir = dirname(file);
+  const skillRoot = skillRootOf(file);
   const re = /\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
   for (const m of text.matchAll(re)) {
     const target = m[1];
@@ -143,6 +160,11 @@ function checkLinks(file, text) {
     const abs = resolve(dir, decodeURIComponent(path));
     if (!abs.startsWith(root)) {
       fail(file, `link escapes the repository: ${target}`);
+      continue;
+    }
+    // A skill may be mounted alone, so nothing it links to may live outside its own directory.
+    if (skillRoot && !abs.startsWith(skillRoot + sep)) {
+      fail(file, `link leaves the skill directory: ${target}`);
       continue;
     }
     try {

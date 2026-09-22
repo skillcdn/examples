@@ -41,13 +41,13 @@ Skills that spend money or credits always estimate first and wait for your appro
 ```
 skills/        one directory per skill: SKILL.md, references/, assets/
 documents/     example document sets: Markdown only, no SKILL.md
-docs/          how this repository is written: shared rules, authoring guide, how to add an example
+docs/          how this repository is written: shared rules, style guide, how to add an example (served too)
 scripts/       check.mjs, the validation CI runs
 ```
 
 ## Adding an example
 
-The process, for a skill, a document set or a new tool family, is in [docs/adding-examples.md](docs/adding-examples.md). The writing conventions are in [docs/skill-authoring.md](docs/skill-authoring.md), and the rules every skill follows are in [docs/shared-rules.md](docs/shared-rules.md). Rules for changing anything here, for people and agents alike, are in [CLAUDE.md](CLAUDE.md).
+The process, for a skill, a document set or a new tool family, is in [docs/adding-examples.md](docs/adding-examples.md). The format is SkillCDN's [skill-repo convention](https://github.com/skillcdn/skillcdn/blob/main/docs/specs/skill-repo.md); what this repository adds on top is in [docs/skill-authoring.md](docs/skill-authoring.md), and the rules every skill follows are in [docs/shared-rules.md](docs/shared-rules.md). Rules for changing anything here, for people and agents alike, are in [CLAUDE.md](CLAUDE.md).
 
 ```sh
 node scripts/check.mjs    # validates front-matter, catalogs, links and text; needs Node.js 24, no install

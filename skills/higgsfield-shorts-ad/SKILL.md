@@ -14,7 +14,7 @@ From one reference video and a product brief, this skill produces a vertical sho
 
 ## Working agreement
 
-These rules come from the repository's [shared rules](../../docs/shared-rules.md) and apply even when this skill is mounted alone.
+These are the rules every skill in the SkillCDN examples repository follows, restated here because this skill may be mounted on its own.
 
 - **Ask when it changes the result.** Product, language, length, caption style, budget and model are the user's choices. Ask for what is missing in one batched message, then follow the answers for the rest of the run.
 - **Request missing tools.** If a required Higgsfield tool is not reachable, stop and tell the user what to add. Do not substitute a different service or skip the step silently.

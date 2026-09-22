@@ -7,7 +7,7 @@ This repository grows one example at a time: a skill that drives a tool, or a do
 1. Read [skill-authoring.md](skill-authoring.md) and the [shared rules](shared-rules.md). Open an existing skill (start with `skills/higgsfield-shorts-ad/`) and copy its skeleton.
 2. Create `skills/<name>/SKILL.md`. The directory name is the skill name. Prefix it with the tool family (`higgsfield-`, `github-`, ...).
 3. Put anything longer than a paragraph in `references/`, and link each reference from the phase that uses it. Data files go in `assets/`.
-4. Restate the shared rules the skill depends on in its "Working agreement" section, and name the tools it requires in "Requirements".
+4. Restate the shared rules the skill depends on in its "Working agreement" section as text (no link out of the skill directory), and name the tools it requires in "Requirements".
 5. Add one row to the table in `skills/README.md` and one to the catalog in the root `README.md`.
 6. Run `node scripts/check.mjs`. Fix what it reports.
 7. Try the skill end to end with an agent that has the required tools, from a fresh session, following only what the files say. Whatever you had to explain in chat is missing from the skill: add it.
