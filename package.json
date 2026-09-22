@@ -1,0 +1,13 @@
+{
+  "name": "@skillcdn/examples",
+  "private": true,
+  "type": "module",
+  "description": "Example skill and document repositories served through SkillCDN. Content only; no runtime dependencies.",
+  "license": "MIT",
+  "scripts": {
+    "check": "node scripts/check.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

@@ -1,0 +1,47 @@
+# Editing decisions: video model or code
+
+Every element of the reference gets a build route in the analysis brief: **generate** (the video model makes it), **edit** (code in the sandbox makes it), or **drop**. This page is the rule book. When a case is not covered, prefer code: it is free, exact and repeatable, and a take can always be re-edited without spending credits.
+
+## Always code
+
+| Element | Why |
+|---|---|
+| Captions and subtitles | Must show the intended line exactly; models misspell and drift. |
+| Titles, stickers, prices, calls to action, any on-screen text | Same reason. Text is drawn with fonts, not hallucinated. |
+| Frames, borders, split screens, rounded masks, letterboxing | Geometry is deterministic in ffmpeg. |
+| Logos and product packshots as overlays | The real asset, pixel-exact, from the user's upload. |
+| End cards | Static or lightly animated; no reason to generate. |
+| Music bed | Licensed or user-supplied track, mixed with ducking under speech. |
+| Freeze frames, speed ramps, zooms on a still frame | Pure post-production. |
+| Transitions between shots (cut, dip to black, whip) | Concatenation and filters. |
+
+## Usually the model
+
+| Element | Why | Exception |
+|---|---|---|
+| A person speaking on camera | Lip sync and performance come from the model's native audio. | A voice-over with no visible mouth: generate the visual silent and add `generate_audio` speech in the edit. |
+| Continuous camera moves within one shot | Cannot be faked from stills. | |
+| A character doing something with the product | Motion must be generated. | The product's exact label or text: cover it with a packshot overlay in the edit if the model gets it wrong. |
+| Diegetic sound tied to an action (a pour, a click, a door) | Native audio matches timing. | If the take's sound is wrong, replace it with a sound effect in the edit rather than regenerating. |
+
+## Judgment calls
+
+| Situation | Choice | Why |
+|---|---|---|
+| Two shots of the same character where continuity matters (mid-gesture, same sentence across a cut) | Generate as one longer shot, cut in code | Models keep identity within a generation better than across two. |
+| Two shots of different framings or scenes | Two separate generations, concatenate in code | Cheaper to regenerate one; a hard cut is natural for shorts. |
+| A cut inside a shot of the reference (jump cut for pace) | One generation, then cut in code | Cutting is free. |
+| Picture-in-picture: an inset video playing over the main shot | Generate the inset only if it must be new footage; otherwise use a user-supplied clip or a still, composited in code | The model cannot place an inset accurately. |
+| A sound effect that is comedic or emphatic (record scratch, ding) | Code, from a user-supplied or generated effect | Models rarely produce it on cue. |
+| Music that is heard in the reference | Never from the reference itself (rights). Use a user-supplied track or `generate_audio` music, mixed in code | Rights and control. |
+| Ambient sound (street, café) | Model native audio if the shot has it; otherwise a bed in the edit | Native ambience is free with the take. |
+| Speech that is slightly off in a good take | Trim around it, cut to a beat, cover with an effect | Cheaper than a retry; see [regeneration](regeneration.md). |
+| A shot that needs the exact product | Give the model the product image as a reference input where the model supports it; verify against the image; overlay a packshot in the edit if the label is wrong | Identity inputs help but do not guarantee text on packaging. |
+
+## Sandbox conventions
+
+- One `sandbox_exec` call does the whole assembly: download takes, cut, filter, mix, mux, probe, upload. The sandbox is discarded between calls.
+- Reserve the output with `media_upload` before the command, and end the command with the PUT of the finished file. Call `media_confirm` only after HTTP 200.
+- Work at the take's native resolution; do not upscale drafts. Output 9:16 H.264 with AAC audio.
+- Keep the caption burn as a separate step on the clean master ([captions](captions.md)), so a caption fix never touches the edit.
+- Fonts for text overlays: use the caption fonts preinstalled in the sandbox or fetch a font the user is licensed to use. Check that the font covers the language's script before rendering.

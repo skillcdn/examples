@@ -1,0 +1,54 @@
+{
+  "$comment": "Example shot list produced in phase 2. Values are illustrative. Costs are filled in phase 3 from get_cost preflights, never typed by hand.",
+  "reference": "ref.mp4",
+  "product": "Example sparkling water",
+  "language": "en",
+  "aspect_ratio": "9:16",
+  "tier": { "resolution": "480p", "mode": "std" },
+  "shots": [
+    {
+      "id": 1,
+      "duration": 5,
+      "intended_line": "Okay, I did not expect this to be good.",
+      "visual": "Handheld selfie close-up, woman in her late twenties with curly dark hair, kitchen at daylight, holds a slim can toward the camera, skeptical then surprised expression.",
+      "reference_image": "product.png",
+      "native_audio": true,
+      "cost_credits": null,
+      "takes": []
+    },
+    {
+      "id": 2,
+      "duration": 5,
+      "intended_line": "Zero sugar. Actually tastes like grapefruit.",
+      "visual": "Same woman, same kitchen, cuts to a tighter shot, takes a sip, nods, small laugh.",
+      "reference_image": "product.png",
+      "native_audio": true,
+      "cost_credits": null,
+      "takes": []
+    },
+    {
+      "id": 3,
+      "duration": 5,
+      "intended_line": null,
+      "visual": "Product on a wet marble counter, slow push in, condensation on the can, soft window light.",
+      "reference_image": "product.png",
+      "native_audio": false,
+      "cost_credits": null,
+      "takes": []
+    }
+  ],
+  "edit_plan": [
+    "Concatenate shots 1, 2, 3 with hard cuts.",
+    "Overlay packshot.png bottom-right during shot 3 for the last 2 seconds.",
+    "Title card 'Try it this week' over shot 3, last 1.5 seconds, bold caps.",
+    "Music bed music.wav at -18 dB, ducked to -28 dB under speech.",
+    "Captions from intended lines, bold caps look."
+  ],
+  "ledger": {
+    "estimate_credits": null,
+    "reserve_credits": null,
+    "accepted_budget_credits": null,
+    "spent_credits": 0,
+    "entries": []
+  }
+}

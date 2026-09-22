@@ -1,0 +1,34 @@
+# Dependencies (the check script has none, but editors and ad-hoc tools may add some)
+node_modules/
+
+# Secrets: nothing here needs any, and none may ever be committed.
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+
+# Media produced while trying a skill. Examples ship text, not renders.
+*.mp4
+*.mov
+*.wav
+*.mp3
+tmp/
+.data/
+
+# Logs
+*.log
+
+# Editors and OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Agent tooling: personal overrides stay local
+.claude/settings.local.json
+.claude/worktrees/
+CLAUDE.local.md

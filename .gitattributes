@@ -1,0 +1,7 @@
+# LF everywhere so Windows, macOS, Linux and CI produce identical files.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.mp4 binary
+*.woff2 binary
