@@ -5,8 +5,9 @@
 ## Checklist
 
 - [ ] `node scripts/check.mjs` passes locally
-- [ ] New skill or document set is listed in the catalog (`skills/README.md` or `documents/README.md`) and in the root `README.md`
-- [ ] The skill follows [docs/skill-authoring.md](../docs/skill-authoring.md) and restates the [shared rules](../docs/shared-rules.md) it depends on
+- [ ] New skill or document set is listed in its catalog (`skills/README.md` or `docs/README.md`) and in the root `README.md`
+- [ ] The skill follows [contributing/skill-authoring.md](../contributing/skill-authoring.md): links only inside its directory, does not restate the rules in `SKILLCDN.md`
+- [ ] Content meant for agents is under a served path (`skills/`, `docs/`); contributor material is not
 - [ ] Everything is in English; no secrets, account identifiers, private hostnames or real customer material
 - [ ] No rendered media, binaries or generated output committed
 

@@ -1,15 +1,16 @@
-// Validates the content of this repository. No dependencies: runs on Node.js 24 as `node scripts/check.mjs`.
+// Validates that this repository is in the SkillCDN Format. No dependencies: runs as `node scripts/check.mjs`.
 //
-// What it checks:
-//   1. Every SKILL.md has front-matter with a valid `name` and `description`, and the name matches its directory.
-//   2. Every skill is listed in skills/README.md and the root README.md; every document set in documents/README.md.
-//   3. Text files contain no control or invisible characters and no CRLF line endings.
-//   4. Relative links in Markdown point at files that exist inside the repository, and links inside a
-//      skill stay inside that skill's directory (a skill may be mounted alone).
-//   5. JSON assets parse. No rendered media, binaries or secret-looking files are tracked.
-//
-// The rules mirror the skill-repo convention that SkillCDN applies when it indexes a repository, so a
-// repository that passes here is served without warnings.
+// The format is specified in the SkillCDN repository (docs/specs/skill-repo.md). This script enforces its
+// required points as far as they are mechanical:
+//   1. The root has a SKILLCDN.md whose front-matter has a `description`, and whose `documents` entries are
+//      directories inside the repository.
+//   2. Every SKILL.md has front-matter with a valid `name` and `description`, the name equals its directory,
+//      and the body starts with a level-one heading.
+//   3. A skill links only inside its own directory (it may be mounted alone). A served document links only
+//      to what is served: skills, declared document directories, the manifest.
+//   4. No rendered media or binaries; JSON assets parse; text carries no control or invisible characters.
+//   5. Every skill and every document set is listed in its catalog README and in the root README.
+// Hidden entries (any path segment starting with a dot) are ignored, as the indexer ignores them.
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
@@ -18,14 +19,31 @@ import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const errors = [];
 const toPosix = (path) => relative(root, path).split(sep).join("/");
-const fail = (file, message) => errors.push(`${toPosix(file)}: ${message}`);
+const fail = (file, message) => errors.push(`${toPosix(file) || "."}: ${message}`);
+const inside = (path, dir) => path === dir || path.startsWith(dir + sep);
+const isDirectory = (path) => {
+  try {
+    return statSync(path).isDirectory();
+  } catch {
+    return false;
+  }
+};
+const exists = (path) => {
+  try {
+    statSync(path);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
-const SKIP_DIRS = new Set([".git", "node_modules", ".claude", ".github", ".vscode"]);
 const NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const FRONT_MATTER_MAX = 16_384;
 const MANIFEST_MAX = 262_144;
 const DESCRIPTION_MAX = 1024;
-const NAME_MAX = 64;
+const SKILL_NAME_MAX = 64;
+const REPO_NAME_MAX = 100;
+const DOCUMENTS_MAX = 20;
 // C0 and C1 controls (except tab, LF, CR), soft hyphen, zero-width and directional marks, BOM.
 // Built from code points on purpose: some editing tools decode escape sequences in source files, and an
 // invisible character in this file is exactly what the check exists to catch.
@@ -45,8 +63,10 @@ function walk(dir, out = []) {
     const path = join(dir, entry.name);
     if (entry.isSymbolicLink()) {
       fail(path, "symbolic links are not allowed");
+    } else if (entry.name.startsWith(".") || entry.name === "node_modules") {
+      // Hidden: never served, never checked.
     } else if (entry.isDirectory()) {
-      if (!SKIP_DIRS.has(entry.name)) walk(path, out);
+      walk(path, out);
     } else {
       out.push(path);
     }
@@ -60,8 +80,9 @@ function unquote(value) {
   return quoted ? v.slice(1, -1) : v;
 }
 
-// Minimal front-matter reader: top-level `key: value` lines and one level of nested mapping. This is
-// deliberately not a YAML parser; skills here keep their front-matter simple enough for one.
+// Minimal front-matter reader: top-level `key: value`, one level of nested mapping, and a sequence of
+// scalars. This is deliberately not a YAML parser; manifests here keep their front-matter simple enough
+// for one, and the indexer's failsafe-schema parser accepts the same subset.
 function parseFrontMatter(text, file) {
   if (!text.startsWith("---\n")) {
     fail(file, "no front-matter (file must start with ---)");
@@ -79,12 +100,27 @@ function parseFrontMatter(text, file) {
   for (const raw of block.split("\n")) {
     if (!raw.trim() || raw.trimStart().startsWith("#")) continue;
     if (/^\s/.test(raw)) {
-      const m = /^\s+([^:]+):\s*(.*)$/.exec(raw);
-      if (!current || !m) {
+      const item = /^\s+-\s+(.*)$/.exec(raw);
+      const pair = /^\s+([^:]+):\s*(.*)$/.exec(raw);
+      if (!current || (!item && !pair)) {
         fail(file, `cannot read front-matter line: ${raw.trim()}`);
         return null;
       }
-      fields[current][m[1].trim()] = unquote(m[2]);
+      const value = fields[current];
+      if (item) {
+        if (Array.isArray(value)) value.push(unquote(item[1]));
+        else if (Object.keys(value).length === 0) fields[current] = [unquote(item[1])];
+        else {
+          fail(file, `mixed mapping and sequence under ${current}`);
+          return null;
+        }
+      } else {
+        if (Array.isArray(value)) {
+          fail(file, `mixed mapping and sequence under ${current}`);
+          return null;
+        }
+        value[pair[1].trim()] = unquote(pair[2]);
+      }
       continue;
     }
     const m = /^([A-Za-z][\w-]*):\s*(.*)$/.exec(raw);
@@ -102,28 +138,67 @@ function parseFrontMatter(text, file) {
       current = null;
     }
   }
-  return fields;
+  return { fields, body: text.slice(end + 4) };
+}
+
+function checkDescription(file, description) {
+  if (typeof description !== "string" || !description) fail(file, "front-matter needs a `description`");
+  else if (description.length > DESCRIPTION_MAX) fail(file, `description longer than ${DESCRIPTION_MAX} characters`);
+}
+
+// The repository manifest. Returns the absolute paths of the declared document directories.
+function checkRepoManifest(file) {
+  if (!exists(file)) {
+    fail(file, "missing: a repository in the SkillCDN Format has a SKILLCDN.md at its root");
+    return [];
+  }
+  const text = readFileSync(file, "utf8");
+  if (text.length > MANIFEST_MAX) fail(file, `manifest longer than ${MANIFEST_MAX} characters`);
+  const parsed = parseFrontMatter(text, file);
+  if (!parsed) return [];
+  const { fields, body } = parsed;
+  if (typeof fields.name === "string" && fields.name.length > REPO_NAME_MAX) fail(file, `name longer than ${REPO_NAME_MAX} characters`);
+  checkDescription(file, fields.description);
+  if (!/^\s*# /.test(body)) fail(file, "body should start with a level-one heading: the rules for every skill");
+  const documents = fields.documents ?? [];
+  if (!Array.isArray(documents)) {
+    fail(file, "`documents` must be a sequence of directories");
+    return [];
+  }
+  if (documents.length > DOCUMENTS_MAX) fail(file, `more than ${DOCUMENTS_MAX} document directories`);
+  const dirs = [];
+  for (const entry of documents) {
+    const clean = entry.replace(/\/+$/, "");
+    if (clean.split("/").includes("..") || clean.startsWith("/") || clean.includes("\\")) {
+      fail(file, `documents entry must be a relative path inside the repository: ${entry}`);
+      continue;
+    }
+    const abs = resolve(root, clean === "" ? "." : clean);
+    if (!isDirectory(abs)) {
+      fail(file, `documents entry is not a directory: ${entry}`);
+      continue;
+    }
+    dirs.push(abs);
+  }
+  return dirs;
 }
 
 function checkSkill(file, text) {
   if (text.length > MANIFEST_MAX) fail(file, `manifest longer than ${MANIFEST_MAX} characters`);
-  const fields = parseFrontMatter(text, file);
-  if (!fields) return;
-  const { name, description } = fields;
+  const parsed = parseFrontMatter(text, file);
+  if (!parsed) return;
+  const { fields, body } = parsed;
+  const { name } = fields;
   if (typeof name !== "string" || !name) {
     fail(file, "front-matter needs a `name`");
   } else {
-    if (name.length > NAME_MAX) fail(file, `name longer than ${NAME_MAX} characters`);
+    if (name.length > SKILL_NAME_MAX) fail(file, `name longer than ${SKILL_NAME_MAX} characters`);
     if (!NAME_RE.test(name)) fail(file, `name must be lowercase letters, digits and single hyphens: ${name}`);
     const dir = dirname(file);
     if (dir !== root && name !== dir.split(sep).pop()) fail(file, `name "${name}" differs from its directory`);
   }
-  if (typeof description !== "string" || !description) {
-    fail(file, "front-matter needs a `description`");
-  } else if (description.length > DESCRIPTION_MAX) {
-    fail(file, `description longer than ${DESCRIPTION_MAX} characters`);
-  }
-  if (!/\n---\n\s*# /.test(text)) fail(file, "body should start with a level-one heading");
+  checkDescription(file, fields.description);
+  if (!/^\s*# /.test(body)) fail(file, "body should start with a level-one heading");
 }
 
 function checkText(file, text) {
@@ -136,19 +211,14 @@ function checkText(file, text) {
 // The nearest ancestor directory that holds a SKILL.md, or null when the file is not inside a skill.
 function skillRootOf(file) {
   let dir = dirname(file);
-  while (dir.startsWith(root)) {
-    try {
-      statSync(join(dir, "SKILL.md"));
-      return dir;
-    } catch {
-      if (dir === root) return null;
-      dir = dirname(dir);
-    }
+  for (;;) {
+    if (exists(join(dir, "SKILL.md"))) return dir;
+    if (dir === root) return null;
+    dir = dirname(dir);
   }
-  return null;
 }
 
-function checkLinks(file, text) {
+function checkLinks(file, text, served) {
   const dir = dirname(file);
   const skillRoot = skillRootOf(file);
   const re = /\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
@@ -158,18 +228,15 @@ function checkLinks(file, text) {
     const path = target.split("#")[0];
     if (!path) continue;
     const abs = resolve(dir, decodeURIComponent(path));
-    if (!abs.startsWith(root)) {
+    if (!inside(abs, root)) {
       fail(file, `link escapes the repository: ${target}`);
-      continue;
-    }
-    // A skill may be mounted alone, so nothing it links to may live outside its own directory.
-    if (skillRoot && !abs.startsWith(skillRoot + sep)) {
+    } else if (skillRoot && !inside(abs, skillRoot)) {
+      // A skill may be mounted alone, so nothing it links to may live outside its own directory.
       fail(file, `link leaves the skill directory: ${target}`);
-      continue;
-    }
-    try {
-      statSync(abs);
-    } catch {
+    } else if (!skillRoot && served.isServed(file) && !served.isServed(abs)) {
+      // A served document is read through the mount, where only served paths can be followed.
+      fail(file, `link leaves what is served (skills, declared documents, the manifest): ${target}`);
+    } else if (!exists(abs)) {
       fail(file, `broken link: ${target}`);
     }
   }
@@ -183,34 +250,27 @@ function listedIn(catalog, dirName) {
   }
 }
 
-function checkCatalog(parent, catalogName, needsManifest) {
-  const dir = join(root, parent);
-  let entries;
-  try {
-    entries = readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return 0;
-  }
+// Every subdirectory of `dir` is an example that must appear in the catalog next to it and in the root README.
+function checkCatalog(dir, label, needsManifest) {
   let count = 0;
-  for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
     count += 1;
     const item = join(dir, entry.name);
-    if (needsManifest) {
-      try {
-        statSync(join(item, "SKILL.md"));
-      } catch {
-        fail(item, "skill directory without SKILL.md");
-      }
-    }
-    if (!listedIn(join(dir, "README.md"), entry.name)) fail(item, `not listed in ${parent}/README.md`);
-    if (!listedIn(join(root, "README.md"), entry.name)) fail(item, "not listed in the root README.md catalog");
+    if (needsManifest && !exists(join(item, "SKILL.md"))) fail(item, "skill directory without SKILL.md");
+    if (!listedIn(join(dir, "README.md"), entry.name)) fail(item, `${label} not listed in ${toPosix(dir)}/README.md`);
+    if (!listedIn(join(root, "README.md"), entry.name)) fail(item, `${label} not listed in the root README.md catalog`);
   }
   return count;
 }
 
+const manifest = join(root, "SKILLCDN.md");
+const documentDirs = checkRepoManifest(manifest);
 const files = walk(root);
-let skills = 0;
+const skillDirs = files.filter((f) => f.endsWith(`${sep}SKILL.md`)).map(dirname);
+const served = {
+  isServed: (abs) => abs === manifest || skillDirs.some((d) => inside(abs, d)) || documentDirs.some((d) => inside(abs, d)),
+};
 
 for (const file of files) {
   const rel = toPosix(file);
@@ -219,11 +279,8 @@ for (const file of files) {
   if (!TEXT_RE.test(rel)) continue;
   const text = readFileSync(file, "utf8");
   checkText(file, text);
-  if (MARKDOWN_RE.test(rel)) checkLinks(file, text);
-  if (rel.endsWith("SKILL.md")) {
-    skills += 1;
-    checkSkill(file, text);
-  }
+  if (MARKDOWN_RE.test(rel)) checkLinks(file, text, served);
+  if (rel.endsWith("SKILL.md")) checkSkill(file, text);
   if (rel.endsWith(".json")) {
     try {
       JSON.parse(text);
@@ -233,11 +290,13 @@ for (const file of files) {
   }
 }
 
-checkCatalog("skills", "skills/README.md", true);
-checkCatalog("documents", "documents/README.md", false);
+const skillsDir = join(root, "skills");
+const skillCount = isDirectory(skillsDir) ? checkCatalog(skillsDir, "skill", true) : 0;
+let documentSets = 0;
+for (const dir of documentDirs) documentSets += checkCatalog(dir, "document set", false);
 
 if (errors.length) {
   console.error(`${errors.length} problem(s):\n${errors.map((e) => `  - ${e}`).join("\n")}`);
   process.exit(1);
 }
-console.log(`ok: ${skills} skill(s), ${files.length} file(s) checked`);
+console.log(`ok: ${skillCount} skill(s), ${documentSets} document set(s), ${files.length} file(s) checked`);

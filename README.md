@@ -1,14 +1,14 @@
 # SkillCDN examples
 
-Example skills and document sets, served live through [SkillCDN](https://github.com/skillcdn/skillcdn). SkillCDN turns a git repository into an MCP server; this repository is the first thing to point an agent at.
+Example skills and document sets, served live through [SkillCDN](https://github.com/skillcdn/skillcdn). SkillCDN turns a git repository into an MCP server; this repository is the first thing to point an agent at, and the reference repository for the [SkillCDN Format](https://github.com/skillcdn/skillcdn/blob/main/docs/specs/skill-repo.md).
 
 ```
-skillcdn.ai/gh/skillcdn/examples                                  everything in this repo
+skillcdn.ai/gh/skillcdn/examples                                  everything the manifest declares
 skillcdn.ai/gh/skillcdn/examples/skills/higgsfield-shorts-ad      one skill
 skillcdn.ai/gh/skillcdn/examples@<commit>                         pinned to a commit
 ```
 
-Every skill here is also a plain [Agent Skills](https://agentskills.io/specification) folder: copy `skills/<name>/` into any agent that reads `SKILL.md` and it works without SkillCDN.
+Every skill here is also a plain [Agent Skills](https://agentskills.io/specification) folder: copy `skills/<name>/` into any agent that reads `SKILL.md` and it works without SkillCDN. When served through SkillCDN, the rules in [SKILLCDN.md](SKILLCDN.md) arrive with every skill.
 
 ## Catalog
 
@@ -20,7 +20,7 @@ Every skill here is also a plain [Agent Skills](https://agentskills.io/specifica
 
 ### Document sets
 
-Directories of Markdown without a `SKILL.md`, such as developer documentation, that an agent reads through `find` and `read_file`. None yet; see [`documents/`](documents/).
+Directories of Markdown without a `SKILL.md`, such as developer documentation, that an agent reads through `find` and `read_file`. None yet; see [`docs/`](docs/).
 
 ### Tool families
 
@@ -39,18 +39,21 @@ Skills that spend money or credits always estimate first and wait for your appro
 ## Repository layout
 
 ```
-skills/        one directory per skill: SKILL.md, references/, assets/
-documents/     example document sets: Markdown only, no SKILL.md
-docs/          how this repository is written: shared rules, style guide, how to add an example (served too)
+SKILLCDN.md    the repository manifest: what an agent is told, and the rules for every skill
+skills/        one directory per skill: SKILL.md, references/, assets/          (served)
+docs/          example document sets: Markdown only                             (served)
+contributing/  how this repository is written and how to add an example         (not served)
 scripts/       check.mjs, the validation CI runs
 ```
 
+With a manifest present, SkillCDN serves only the skills, the directories the manifest declares as documents and the manifest itself. This README, `contributing/` and `scripts/` are for people on the git host.
+
 ## Adding an example
 
-The process, for a skill, a document set or a new tool family, is in [docs/adding-examples.md](docs/adding-examples.md). The format is SkillCDN's [skill-repo convention](https://github.com/skillcdn/skillcdn/blob/main/docs/specs/skill-repo.md); what this repository adds on top is in [docs/skill-authoring.md](docs/skill-authoring.md), and the rules every skill follows are in [docs/shared-rules.md](docs/shared-rules.md). Rules for changing anything here, for people and agents alike, are in [CLAUDE.md](CLAUDE.md).
+The process, for a skill, a document set or a new tool family, is in [contributing/adding-examples.md](contributing/adding-examples.md). The format is the SkillCDN Format; what this repository adds on top is in [contributing/skill-authoring.md](contributing/skill-authoring.md). Rules for changing anything here, for people and agents alike, are in [CLAUDE.md](CLAUDE.md).
 
 ```sh
-node scripts/check.mjs    # validates front-matter, catalogs, links and text; needs Node.js 24, no install
+node scripts/check.mjs    # validates the manifest, front-matter, catalogs, links and text; needs Node.js 24, no install
 ```
 
 ## License

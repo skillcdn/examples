@@ -1,8 +1,8 @@
 # Contributing
 
-Thanks for your interest. This repository is the example content for SkillCDN, and it is public: every change to `main` is served to agents right away.
+Thanks for your interest. This repository is the example content for SkillCDN and the reference repository for the SkillCDN Format, and it is public: every change to `main` is served to agents right away.
 
-The rules for working here (conventions, checks, commits) are in [`CLAUDE.md`](CLAUDE.md), and the process for adding a skill or a document set is in [docs/adding-examples.md](docs/adding-examples.md). Both apply to people and AI agents alike. This file covers setup and the contribution process.
+The rules for working here (conventions, checks, commits) are in [`CLAUDE.md`](CLAUDE.md), and the process for adding a skill or a document set is in [contributing/adding-examples.md](contributing/adding-examples.md). Both apply to people and AI agents alike. This file covers setup and the contribution process.
 
 ## Setup
 
