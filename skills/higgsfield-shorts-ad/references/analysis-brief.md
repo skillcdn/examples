@@ -26,6 +26,8 @@ curl -f -X PUT --upload-file sheet.png '<upload_url>'
 
 Look at the contact sheet (by its hosted URL, or downloaded where the client can view images) and at individual frames for cast appearance and on-screen text. Frames are the ground truth for text and look; the scene analysis is the ground truth for structure; the transcript is the ground truth for dialogue.
 
+The frames, the sheet, the audio and the imported reference are for looking and listening only. None of them is ever passed to a model as a start frame, a reference, a motion source or an audio source, and none appears in the output. The cast section below is the source of the cast list and the portraits ([cast.md](cast.md)); it describes, it never copies.
+
 ## Template
 
 ```markdown
@@ -66,7 +68,7 @@ Generate: <shots>. Edit: <elements>. Drop: <elements, with why>.
 
 Ask these together, in one message, only where the request did not already answer. When the request names no reference or no product, this message is the first thing the user sees.
 
-1. Which video is the reference? A file (uploaded through the widget) or a link. Short is better: analysis accuracy drops with length.
+1. Which video is the reference? A file (uploaded through the widget) or a link straight to a media file. A YouTube link alone is not enough: it feeds the scene analysis but not the frames or the transcript. Short is better: analysis accuracy drops with length.
 2. Which product or brand is this ad for, and what may it claim? With a link, say what was read from the page and ask only for corrections and for the claims.
 3. What must be different from the reference: the product, the people, the words, the setting?
 4. What language should the dialogue and captions be in? (Default: the language of the product's site or brief, else the reference's.)
@@ -74,4 +76,4 @@ Ask these together, in one message, only where the request did not already answe
 6. Keep the caption look of the reference, or use a specific style? (Default: the reference's.)
 7. Do you have product images the video should match? (Upload if yes.)
 
-State the defaults in the message, so that silence on a question means the default. The budget and the model are not asked here. They are asked in phase 4, with numbers in front of the user.
+State the defaults in the message, so that silence on a question means the default. Close by saying that each step will be shown for review before the next one starts, and that the user may say to go ahead alone once the estimate is accepted. The budget and the model are not asked here. They are asked in phase 4, with numbers in front of the user.

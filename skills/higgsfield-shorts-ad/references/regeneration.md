@@ -1,6 +1,6 @@
 # Regeneration
 
-When a take's dialogue is ambiguous, regenerate that shot only. This page defines ambiguous, the retry budget, and the cheaper alternatives to try first.
+When a take's dialogue is ambiguous, regenerate that shot only. This page defines ambiguous, the retry budget, and the cheaper alternatives to try first. At the take gate the user decides: this page is the recommendation the agent gives there, and its own rule when the user has said to go ahead alone.
 
 ## What counts as ambiguous
 
@@ -30,12 +30,12 @@ If none of these keeps the meaning and the delivery natural, regenerate.
 
 - Same model, same tier, same duration, same aspect ratio. Regeneration is not the moment to upgrade quality.
 - Put the intended line in the prompt verbatim, in quotes, and state explicitly that the character says exactly these words, in which language, and nothing else. Keep the visual prompt unchanged so the take still cuts with its neighbors.
-- Where the model accepts a reference image or the previous take as identity input, pass it so the cast stays consistent.
+- Pass the same approved portrait as identity input, exactly as in the first take ([cast](cast.md)), so the cast stays consistent. Nothing from the reference video, ever.
 - Generate one take. Judge it by the same table.
 
 ## Retry budget
 
-- One retry per shot without asking; it comes out of the reserve the user accepted.
+- One retry per shot comes out of the reserve the user accepted: proposed at the take gate, and taken without asking only with the go-ahead.
 - A second retry for the same shot needs the user's consent, with the ledger shown: what was spent, what is left, and what the alternative in code would look like.
 - When the reserve is gone, every retry needs consent.
 - Never regenerate a shot that was already accepted to make it "better". Only ambiguous or broken takes are retried.

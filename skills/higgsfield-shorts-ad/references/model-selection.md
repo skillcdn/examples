@@ -38,20 +38,22 @@ For each shot and each family, call `generate_video` with the shot's exact param
 generate_video  params: { model: <id>, prompt: <shot prompt>, duration: <s>, aspect_ratio: "9:16", <tier parameters>, get_cost: true }
 ```
 
+Images are preflighted the same way, with `generate_image` and `get_cost: true`: one portrait per cast member, and, for a family whose video model takes only a start frame, one first frame per shot with a character. Which route each family needs, and how to find the image model, is in [cast.md](cast.md). The image reserve is one extra portrait per cast member.
+
 ## The estimate
 
 ```
-Family     Model         Tier   Shots   Per-shot credits   Sum   Reserve (+1 take / 3 shots)   Total
-Kling      <latest>      std    4       10, 10, 20, 10     50    +20                           70
-Seedance   <latest>      480p   4       15, 15, 30, 15     75    +30                           105
+Family     Model      Tier   Video per shot        Images                              Reserve            Total
+Kling      <latest>   std    10, 10, 20, 10 = 50   2 portraits 4 + 4 first frames 8    +20 video, +4 img  86
+Seedance   <latest>   480p   15, 15, 30, 15 = 75   2 portraits 4                       +30 video, +4 img  113
 Balance: <credits> · Free-trial unlimited generations: <available or not>
 ```
 
-The numbers above are illustrative, shaped like a preflight taken on 2026-09-22 for 5- and 10-second 9:16 shots with audio. They are not current prices. Present only numbers that came back from `get_cost` in this run.
+The numbers above are illustrative, shaped like preflights for 5- and 10-second 9:16 shots with audio and 1k portraits. They are not current prices. Present only numbers that came back from `get_cost` in this run.
 
-With the table, give the user the qualitative difference for this brief in two or three lines, drawn from the model descriptions in the catalog: for example, which one accepts a reference video or image for identity and product consistency, which one handles multi-shot continuity, which one supports the longer durations the shot list needs. Then ask:
+With the table, give the user the qualitative difference for this brief in two or three lines, drawn from the catalog: which family takes the approved portrait as an identity reference and which needs a first frame per shot (that is where the image cost differs), which one handles multi-shot continuity, which one supports the longer durations the shot list needs. Then ask:
 
-1. Is the shot list right, or what should change?
+1. Are the cast list and the shot list right, or what should change?
 2. Kling or Seedance?
 3. Is the total, including the reserve, accepted as the budget for this run?
 

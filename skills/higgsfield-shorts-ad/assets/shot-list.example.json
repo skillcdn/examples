@@ -1,17 +1,26 @@
 {
-  "$comment": "Example shot list produced in phase 3. Values are illustrative. Costs are filled in phase 4 from get_cost preflights, never typed by hand.",
-  "reference": "ref.mp4",
+  "$comment": "Example shot list produced in phase 3. Values are illustrative. Costs are filled in phase 4 from get_cost preflights, never typed by hand. Portrait ids are filled in phase 5 once the user has approved them. identity_input.role is whichever role the chosen video model exposes: image_references for an identity reference, start_image for a first frame made from the portrait. The reference video is never an input.",
+  "reference": "ref.mp4 (analyzed only)",
   "product": "Example sparkling water",
   "language": "en",
   "aspect_ratio": "9:16",
-  "tier": { "resolution": "480p", "mode": "std" },
+  "tier": { "resolution": "480p", "mode": "std", "image": "1k" },
+  "cast": [
+    {
+      "id": "host",
+      "description": "Woman in her late twenties, slim, shoulder-length curly dark hair, medium-light skin tone, mustard knit sweater, small gold hoop earrings, warm expression that turns from skeptical to delighted; the on-camera speaker.",
+      "portrait": { "media_id": null, "approved": false, "cost_credits": null, "takes": [] }
+    }
+  ],
   "shots": [
     {
       "id": 1,
       "duration": 5,
+      "cast": ["host"],
       "intended_line": "Okay, I did not expect this to be good.",
-      "visual": "Handheld selfie close-up, woman in her late twenties with curly dark hair, kitchen at daylight, holds a slim can toward the camera, skeptical then surprised expression.",
-      "reference_image": "product.png",
+      "visual": "Handheld selfie close-up in a bright kitchen at daylight. The host (mustard knit sweater, curly dark hair, gold hoop earrings) holds a slim can toward the camera, skeptical then surprised.",
+      "identity_input": { "role": "image_references", "value": null },
+      "product_image": "product.png",
       "native_audio": true,
       "cost_credits": null,
       "takes": []
@@ -19,9 +28,11 @@
     {
       "id": 2,
       "duration": 5,
+      "cast": ["host"],
       "intended_line": "Zero sugar. Actually tastes like grapefruit.",
-      "visual": "Same woman, same kitchen, cuts to a tighter shot, takes a sip, nods, small laugh.",
-      "reference_image": "product.png",
+      "visual": "Same kitchen, tighter shot. The host (mustard knit sweater, curly dark hair, gold hoop earrings) takes a sip, nods, small laugh.",
+      "identity_input": { "role": "image_references", "value": null },
+      "product_image": "product.png",
       "native_audio": true,
       "cost_credits": null,
       "takes": []
@@ -29,9 +40,11 @@
     {
       "id": 3,
       "duration": 5,
+      "cast": [],
       "intended_line": null,
       "visual": "Product on a wet marble counter, slow push in, condensation on the can, soft window light.",
-      "reference_image": "product.png",
+      "identity_input": null,
+      "product_image": "product.png",
       "native_audio": false,
       "cost_credits": null,
       "takes": []
@@ -41,7 +54,7 @@
     "Concatenate shots 1, 2, 3 with hard cuts.",
     "Overlay packshot.png bottom-right during shot 3 for the last 2 seconds.",
     "Title card 'Try it this week' over shot 3, last 1.5 seconds, bold caps.",
-    "Music bed music.wav at -18 dB, ducked to -28 dB under speech.",
+    "Music bed music.wav (user-supplied) at -18 dB, ducked to -28 dB under speech.",
     "Captions from intended lines, bold caps look."
   ],
   "ledger": {

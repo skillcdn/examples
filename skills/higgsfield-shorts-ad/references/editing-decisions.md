@@ -2,6 +2,8 @@
 
 Every element of the reference gets a build route in the analysis brief: **generate** (the video model makes it), **edit** (code in the sandbox makes it), or **drop**. This page is the rule book. When a case is not covered, prefer code: it is free, exact and repeatable, and a take can always be re-edited without spending credits.
 
+The reference video itself is never a build material. No frame, clip, still or sound from it is uploaded as a model input, used as a start frame, a reference or a motion source, or cut into the output. The brief describes it in words, and the words drive the build.
+
 ## Always code
 
 | Element | Why |
@@ -19,7 +21,8 @@ Every element of the reference gets a build route in the analysis brief: **gener
 
 | Element | Why | Exception |
 |---|---|---|
-| A person speaking on camera | Lip sync and performance come from the model's native audio. | A voice-over with no visible mouth: generate the visual silent and add `generate_audio` speech in the edit. |
+| A person speaking on camera, or a voice-over | Lip sync, performance and narration come from the model's native audio. No text-to-speech, no dubbing, no voice tools. | None. A voice-over is prompted as an off-screen voice in the take it plays under. |
+| The same character across shots | The approved portrait as the identity input of every shot with that character, or as the source of each first frame, plus the same clothing and traits in every prompt ([cast](cast.md)). | |
 | Continuous camera moves within one shot | Cannot be faked from stills. | |
 | A character doing something with the product | Motion must be generated. | The product's exact label or text: cover it with a packshot overlay in the edit if the model gets it wrong. |
 | Diegetic sound tied to an action (a pour, a click, a door) | Native audio matches timing. | If the take's sound is wrong, replace it with a sound effect in the edit rather than regenerating. |
