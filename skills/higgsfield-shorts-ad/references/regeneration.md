@@ -1,6 +1,6 @@
 # Regeneration
 
-When a take's dialogue is ambiguous, regenerate that shot only. This page defines ambiguous, the retry budget, and the cheaper alternatives to try first. At the take gate the user decides: this page is the recommendation the agent gives there, and its own rule when the user has said to go ahead alone.
+When a take's dialogue is ambiguous, regenerate that shot only. This page defines ambiguous, the retry budget, and the cheaper alternatives to try first. At the take checkpoint the user decides: this page is the recommendation the agent gives there, and its own rule when the user has said to go ahead alone.
 
 ## What counts as ambiguous
 
@@ -35,7 +35,7 @@ If none of these keeps the meaning and the delivery natural, regenerate.
 
 ## Retry budget
 
-- One retry per shot comes out of the reserve the user accepted: proposed at the take gate, and taken without asking only with the go-ahead.
+- One retry per shot comes out of the reserve the user accepted: proposed at the take checkpoint, and taken without asking only with the go-ahead.
 - A second retry for the same shot needs the user's consent, with the ledger shown: what was spent, what is left, and what the alternative in code would look like.
 - When the reserve is gone, every retry needs consent.
 - Never regenerate a shot that was already accepted to make it "better". Only ambiguous or broken takes are retried.

@@ -17,7 +17,7 @@ Four steps, in one `sandbox_exec` call on the clean master, in this order. Skipp
 
 ## Using the bundled subtitles workflow
 
-If `get_workflow_instructions` lists a `subtitles` workflow, use its scripts: they implement this pipeline with tested caption geometry and font fallback. Pass the intended lines as the script input so that the transcript is used only as the clock, which is exactly the rule above. Choose the look the user picked in intake; when they had no preference, use the bold caps look the workflow recommends for shorts.
+If `get_workflow_instructions` lists a `subtitles` workflow, use its scripts: they implement this pipeline with tested caption geometry and font fallback. Pass the intended lines as the script input so that the transcript is used only as the clock, which is exactly the rule above. Use the reference's look as derived in the brief, or the look the user asked for at a checkpoint; when the reference has no captions, use the bold look the workflow recommends for shorts.
 
 Otherwise, run Whisper for word timings, write an SRT from the aligned intended lines, and burn with ffmpeg's subtitles filter, with a font that covers the script of the dialogue language. Keep the SRT next to the output for verification.
 

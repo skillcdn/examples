@@ -66,14 +66,21 @@ Generate: <shots>. Edit: <elements>. Drop: <elements, with why>.
 
 ## Intake
 
-Ask these together, in one message, only where the request did not already answer. When the request names no reference or no product, this message is the first thing the user sees.
+Ask only for what the request did not give, and only these two:
 
-1. Which video is the reference? A file (uploaded through the widget) or a link straight to a media file. A YouTube link alone is not enough: it feeds the scene analysis but not the frames or the transcript. Short is better: analysis accuracy drops with length.
-2. Which product or brand is this ad for, and what may it claim? With a link, say what was read from the page and ask only for corrections and for the claims.
-3. What must be different from the reference: the product, the people, the words, the setting?
-4. What language should the dialogue and captions be in? (Default: the language of the product's site or brief, else the reference's.)
-5. Should the ad be the same length as the reference? (Default: yes.)
-6. Keep the caption look of the reference, or use a specific style? (Default: the reference's.)
-7. Do you have product images the video should match? (Upload if yes.)
+1. The reference video: a link straight to a media file, or a local file through the upload widget where the client has one. A YouTube link alone is not enough: it feeds the scene analysis but not the frames or the transcript. Short is better; analysis accuracy drops with length.
+2. The product: a link to its site or page, or a name and one sentence about it.
 
-State the defaults in the message, so that silence on a question means the default. Close by saying that each step will be shown for review before the next one starts, and that the user may say to go ahead alone once the estimate is accepted. The budget and the model are not asked here. They are asked in phase 4, with numbers in front of the user.
+The message is short: the one or two things needed, one line on what happens next (the reference is analyzed, then a plan with its cost is shown), and nothing else. Never ask about language, length, captions, cast, setting, images or budget. Those are derived and shown at the plan checkpoint, where the user can change any of them. When the request already has both, there is no intake message at all.
+
+## Product brief
+
+From the product page (or the user's sentence), record:
+
+- Name, what it is, who it is for: one line each.
+- The tagline, if any, verbatim.
+- The claims the page makes, as a short list. Only these, or what the user states, may be spoken in the ad.
+- The page's language, which becomes the dialogue and caption language.
+- Images: the logo and one product image. Fetch the page in the sandbox (`curl -sL '<url>'`), read the `og:image` tag and the `img` sources whose path, alt or class mentions logo, product, hero or the product's name; download the candidates, look at them, and keep the two that serve: a logo for the end card and overlays, a product image for overlays and as a product reference where the video model takes one. Import them with `media_import_url`. They are the user's own assets; nothing is taken from any other site.
+
+A text-only web tool gives the words; the images need the sandbox. Without either, ask the user for two lines about the product and go on without images.

@@ -9,9 +9,9 @@ metadata:
 ---
 # Rules for every skill in this repository
 
-**Ask, do not assume.** When a choice changes the result (which product, which language, how long, how much to spend), ask the user and follow their answer. Ask once, in one batched message, only for what the request and the inputs did not already answer. An answer stands for the rest of the run.
+**Ask only what cannot be derived.** A skill asks for the inputs it cannot get from the request, in one short message, and derives everything else from those inputs and sensible defaults. What was derived is stated at the next step and changed when the user asks. The user need not know the tool or the craft; an answer stands for the rest of the run.
 
-**Show every step.** Each phase of a skill ends with its artifact in front of the user, who approves or corrects it before the next phase starts. Only when the user says to go ahead without them are these reviews skipped; the questions above and the consent to spend never are.
+**Show every step, briefly.** Each phase ends with its result in front of the user in plain words: what was made, the recommendation, and that one word continues. When the user says to go ahead alone, these stops end; consent to spend never does.
 
 **Request missing tools.** Before starting, confirm the tools a skill names are reachable. If one is missing, stop and tell the user exactly what to add and why. Do not substitute something that changes the result or the cost, and do not pretend the step happened.
 
