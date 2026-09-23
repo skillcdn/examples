@@ -5,7 +5,7 @@ license: MIT
 compatibility: Needs the Higgsfield MCP server with video generation, image generation, video analysis, media upload and the cloud sandbox (ffmpeg and Whisper). Works in any agent that can call MCP tools.
 metadata:
   author: skillcdn
-  version: "0.9"
+  version: "1.0"
   tools: higgsfield
 skillcdn:
   include:
