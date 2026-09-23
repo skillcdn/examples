@@ -17,21 +17,15 @@ Four steps, in one `sandbox_exec` call on the clean master, in this order. Skipp
 
 ## Using the bundled subtitles workflow
 
-If `get_workflow_instructions` lists a `subtitles` workflow, use its scripts: they implement this pipeline with tested caption geometry and font fallback. Pass the intended lines as the script input (its manifest of lines) so that the transcript is used only as the clock, which is exactly the rule above. Use the reference's look as derived in the brief, or the look the user asked for at a checkpoint; when the reference has no captions, use the bold look the workflow recommends for shorts.
+If `get_workflow_instructions` lists a `subtitles` workflow, use its scripts: they implement this pipeline with tested caption geometry and font fallback. Pass the intended lines as the script input (its manifest of lines) so that the transcript is used only as the clock, which is exactly the rule above. Use the brand's look from [design.md](design.md), or the look the user asked for at a checkpoint.
 
 Check its cue times before burning: in one run its block alignment spread each line across the whole speech window, so cues after a pause appeared about a second early. When that happens, write the SRT from word timestamps yourself and use only its burner. Three more things the bundle does not do on its own. It ships no font for non-Latin scripts: pass the font file and its directory through the workflow's font flags. Its clean burner is white with a slim outline and has no colour option: when the reference's caption colour matters, burn with ffmpeg's `subtitles` filter and `force_style` instead. Its similarity gate (re-run below 0.9) misfires when the intended lines legitimately differ from the STT spelling; check the cue starts against the takes' word timestamps and go on when they hold. It also asks the user about the look for direct requests; this skill does not ask, it derives the look. Run it in the background like the assembly.
 
 Otherwise, run Whisper for word timings, write an SRT from the aligned intended lines, and burn with ffmpeg's subtitles filter, with a font that covers the script of the dialogue language. Keep the SRT next to the output for verification.
 
-## Looks
+## Look
 
-| Look | When |
-|---|---|
-| Bold caps, white with black outline | Default for shorts and UGC-style ads. Matches most references. |
-| Clean sentence case, slim outline | Calmer, premium products; when the reference uses it. |
-| Handwritten on paper | Only when the reference has it. |
-
-The reference's look is described in the analysis brief under "On-screen text and captions" and is the default.
+The caption look is the brand's: family, weight, color and size from [design.md](design.md), placement from the reference. The bold white UGC look is used only when the reference is UGC-style and the brand has no type of its own.
 
 ## Language and fonts
 

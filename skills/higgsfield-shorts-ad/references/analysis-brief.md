@@ -39,20 +39,23 @@ The frames, the sheet, the audio and the imported reference are for looking and 
 
 Duration: <s> · Frame: <w>x<h> (<aspect>) · Language: <code> · Shots: <n>
 
+## Why it works
+<The mechanism, not the content. Hook: what stops the thumb in the first two seconds and how (a question, a shock, a face, a claim). Tension: what the viewer wants resolved. Turn: the moment the ad changes direction. Payoff: what the product delivers and how it is shown. Call to action: its wording and timing. Pacing: how cut rhythm carries these. Keep: the mechanism. Reinvent: the situation, the setting, the cast, the lines.>
+
 ## Mood and pacing
-<Two or three sentences: tone, energy, color, camera style, cut rhythm. Name the hook in the first two seconds.>
+<Two or three sentences: tone, energy, color, camera style, cut rhythm.>
 
 ## Shot list
-| # | In–out | What is on screen | Camera | Cut or move | Build route |
-|---|---|---|---|---|---|
-| 1 | 0.0–2.1 | ... | handheld close-up | hard cut | generate |
+| # | In–out | What is on screen | Beat (what the viewer feels, and why) | Camera | Cut or move | Build route |
+|---|---|---|---|---|---|---|
+| 1 | 0.0–2.1 | ... | discomfort: a question the viewer has heard too | handheld close-up | hard cut | generate |
 
 ## Dialogue (as spoken)
 | # | In–out | Speaker | Transcript |
 |---|---|---|---|
 
 ## On-screen text and captions
-| In–out | Text | Kind (caption / title / sticker / price / CTA) | Position | Look (font weight, case, outline, color) | Build route |
+| In–out | Text | Kind (caption / title / sticker / price / CTA) | Position | Look (family class, weight, case, outline, color, motion) | Build route |
 |---|---|---|---|---|---|
 
 ## Cast
@@ -85,6 +88,7 @@ From the product page (or the user's sentence), record:
 - The tagline, if any, verbatim.
 - The claims the page makes, as a short list. Only these, or what the user states, may be spoken in the ad.
 - The page's language, which becomes the dialogue and caption language.
+- The page's type and colors: font families from its stylesheet, the ground, text and accent colors, the logo's clear space ([design.md](design.md)).
 - Images: the logo, one product image, and the photo of any person the site presents as the brand's own (a founder, a face of the brand, a mascot). Fetch the page in the sandbox (`curl -sL '<url>'`), read the `og:image` tag and the `img` sources whose path, alt or class mentions logo, product, hero, portrait or the product's name; download the candidates, look at them, and keep what serves: a logo for the end card and overlays, a product image for overlays and as a product reference where the video model takes one, a person's photo for casting ([cast.md](cast.md)). Import them with `media_import_url`. They are the advertiser's own assets and may be used as they are or as references; nothing is taken from any other site.
 
 A text-only web tool gives the words; the images need the sandbox. Without either, ask the user for two lines about the product and go on without images.

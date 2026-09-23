@@ -16,7 +16,7 @@ Every skill here is also a plain [Agent Skills](https://agentskills.io/specifica
 
 | Skill | Tool family | What it does |
 |---|---|---|
-| [`skills/higgsfield-shorts-ad/`](skills/higgsfield-shorts-ad/) | Higgsfield | Makes a vertical short-form AI ad in the style of a reference video from just the reference and a product link: derives language, length and look itself, has the user approve generated cast portraits and a still first frame per shot, recommends the latest Kling or Seedance model with a credit estimate, animates each frame into a draft-quality take one at a time, and adds captions, frames and text with code-based editing. |
+| [`skills/higgsfield-shorts-ad/`](skills/higgsfield-shorts-ad/) | Higgsfield | Makes a vertical short-form AI ad from just a reference video and a product link: learns what makes the reference work and writes an original concept for the product, derives language, length and the brand's typography itself, has the user approve generated cast portraits and a still first frame per shot, directs each performance, recommends the latest Kling or Seedance model with a credit estimate, animates one draft-quality take at a time, and adds captions, text and the end card with code-based editing. |
 
 ### Document sets
 

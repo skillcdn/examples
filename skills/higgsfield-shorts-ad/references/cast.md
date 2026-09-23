@@ -35,7 +35,7 @@ A frame costs a fraction of a take, so a wrong composition, outfit or setting is
 One paragraph, in this order, built from the brief's cast description as rewritten in phase 3:
 
 1. Framing: photo, head-and-shoulders portrait, three-quarter view, eyes to camera. (A first frame instead describes the shot's opening framing, setting and pose.)
-2. The person: apparent age range, build, hair (color, length, style), skin tone, the facial features that matter, expression, one line on how they carry themselves.
+2. The person: apparent age range, build, hair (color, length, style), skin tone, the facial features that matter, the baseline expression of the role (the first frame carries each shot's starting emotion, the take prompt carries its turn), one line on how they carry themselves.
 3. Clothing and accessories, exactly. They are repeated word for word in every video prompt for that character.
 4. Setting and light matching the ad's mood; for a pure identity portrait, a plain neutral background in soft daylight.
 5. Style: photoreal, unretouched, natural skin texture, unless the reference is animated or stylized, then its style in words.

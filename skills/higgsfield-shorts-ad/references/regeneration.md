@@ -12,6 +12,7 @@ Judge each take right after it is generated, from watching it and from its Whisp
 | Close enough | One ordinary word differs but the meaning is the same, and the brand name and every signature phrase are exact. Delivery is natural. | Accept. The caption still shows the intended line. |
 | Ambiguous | A wrong or missing word changes the meaning; the brand or product name, or a signature phrase such as the tagline, is wrong, slurred or a near-homophone; the line is cut off, mumbled, overlapped by another voice, or in the wrong language. | Fix in code if possible, otherwise regenerate. |
 | Broken | No speech where there should be, or speech where there should be none, judged from loudness and Whisper's no-speech probability, not from the transcript alone. | Regenerate. |
+| Flat | The words are right but the performance is not the beat: no visible emotion, the wrong emotion, no turn where the shot has one, or a dead pause. | Trim to the good part when it exists; otherwise regenerate once with the performance line made concrete (the expression, the gesture, the pace, the eye line), not longer. |
 
 Do not chase a perfect match. Two takes with the same meaning are both fine; the credits are better kept for a shot that is actually wrong. The exception is the brand's own words: a tagline said almost right is said wrong, because the audience knows it.
 

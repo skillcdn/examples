@@ -1,14 +1,24 @@
 {
-  "$comment": "Example shot list produced in phase 3. Values are illustrative. Costs are filled in phase 4 from get_cost preflights, never typed by hand. Portrait ids are filled in phase 5 and first-frame ids in phase 6, once the user has approved them. Every take is animated from its first frame (start_image); the portrait also goes in the video model's identity role where it has one. The reference video is never an input.",
+  "$comment": "Example shot list produced in phase 3. Values are illustrative. Costs are filled in phase 4 from get_cost preflights, never typed by hand. Portrait ids are filled in phase 5 and first-frame ids in phase 6, once the user has approved them. Every take is animated from its first frame (start_image) with the portrait in the video model's identity role where it has one. The reference video is never an input, and the concept is new: it keeps the reference's mechanism, not its scenes.",
   "reference": "ref.mp4 (analyzed only)",
+  "why_it_works": "Hook: a stranger's blunt question to camera. Tension: the viewer has been asked it too. Turn: a private moment where the product answers. Payoff: relief shown on the face, not claimed. CTA: one line, spoken, then written.",
+  "concept": {
+    "chosen": "A barista keeps getting the same question from regulars; on her break she tries the product and the next regular gets a different answer.",
+    "alternative": "Two friends on a video call, one still asking, the other already convinced."
+  },
   "product": "Example sparkling water",
   "language": "en",
   "aspect_ratio": "9:16",
   "tier": { "resolution": "480p", "mode": "std", "image": "1k" },
+  "design": {
+    "type": "Site heading font is an open-license geometric sans; used for captions and the end card in two weights",
+    "colors": { "ground": "#101418", "text": "#F4F1EA", "accent": "#E4572E" },
+    "captions": "brand text color, soft shadow, sentence case, bottom safe zone as the reference"
+  },
   "cast": [
     {
       "id": "host",
-      "description": "Woman in her late twenties, slim, shoulder-length curly dark hair, medium-light skin tone, mustard knit sweater, small gold hoop earrings, warm expression that turns from skeptical to delighted; the on-camera speaker.",
+      "description": "Woman in her late twenties, slim, shoulder-length curly dark hair, medium-light skin tone, mustard knit sweater, small gold hoop earrings, baseline expression patient and dry; the barista.",
       "portrait": { "media_id": null, "approved": false, "cost_credits": null, "takes": [] }
     }
   ],
@@ -17,14 +27,15 @@
       "id": 1,
       "duration": 5,
       "cast": ["host"],
-      "intended_line": "Okay, I did not expect this to be good.",
+      "intended_line": "Still sparkling water? Yes. Still.",
       "first_frame": {
-        "description": "Handheld selfie framing, bright kitchen at daylight, the host (mustard knit sweater, curly dark hair, gold hoop earrings) holding a slim can toward the camera, skeptical eyebrow raised, soft window light.",
+        "description": "Behind a cafe counter at morning light, the host (mustard knit sweater, curly dark hair, gold hoop earrings) mid-pour, eyes up at an unseen regular, patient half-smile.",
         "media_id": null,
         "approved": false,
         "cost_credits": null
       },
-      "visual": "From the first frame: she tilts the can, glances at it, then back to the camera with a surprised half-smile while speaking.",
+      "performance": "Starts patient and amused; the turn is a tiny eye-roll on the second 'still'; ends dry and fond. Even pace, low volume, eyes to the regular off camera, hands keep pouring.",
+      "visual": "From the first frame: she finishes the pour, glances at the regular, answers without looking up, the smallest eye-roll, back to the cup.",
       "identity_input": { "role": "image_references", "value": null },
       "product_image": "product.png",
       "native_audio": true,
@@ -35,14 +46,15 @@
       "id": 2,
       "duration": 5,
       "cast": ["host"],
-      "intended_line": "Zero sugar. Actually tastes like grapefruit.",
+      "intended_line": "Okay. Grapefruit. That is new.",
       "first_frame": {
-        "description": "Same kitchen, tighter framing on the host (mustard knit sweater, curly dark hair, gold hoop earrings), can raised to her lips, eyes to camera.",
+        "description": "Back room on her break, the host (same sweater, hair, earrings) holding a slim can at eye level, skeptical eyebrow raised, soft window light.",
         "media_id": null,
         "approved": false,
         "cost_credits": null
       },
-      "visual": "From the first frame: she takes a sip, nods, small laugh while speaking.",
+      "performance": "Starts skeptical; the turn is the first sip, eyes widen; ends surprised and pleased, a short laugh at herself. Eyes on the can, then to camera on the last word.",
+      "visual": "From the first frame: she sips, pauses, looks at the can, then at the camera with a half-smile while speaking.",
       "identity_input": { "role": "image_references", "value": null },
       "product_image": "product.png",
       "native_audio": true,
@@ -55,11 +67,12 @@
       "cast": [],
       "intended_line": null,
       "first_frame": {
-        "description": "Product on a wet marble counter, condensation on the can, soft window light, shallow depth of field.",
+        "description": "The can on the cafe counter beside the espresso machine, condensation on it, morning light, shallow depth of field.",
         "media_id": null,
         "approved": false,
         "cost_credits": null
       },
+      "performance": "Calm and bright; no people; the product is the answer.",
       "visual": "From the first frame: slow push in on the can, a drop of condensation runs down.",
       "identity_input": null,
       "product_image": "product.png",
@@ -70,10 +83,10 @@
   ],
   "edit_plan": [
     "Concatenate shots 1, 2, 3 with hard cuts.",
-    "Overlay packshot.png bottom-right during shot 3 for the last 2 seconds.",
-    "Title card 'Try it this week' over shot 3, last 1.5 seconds, bold caps.",
+    "On-screen text over shot 1 at 1.0 to 2.5 s: 'Every. Single. Morning.' in the brand display style, accent on one word.",
+    "End card over shot 3, last 4 seconds: logo, brand name, tagline, 'Try grapefruit this week', the address; slow zoom on the still; brand ground color under the text.",
     "Music bed music.wav (user-supplied) at -18 dB, ducked to -28 dB under speech.",
-    "Captions from intended lines, bold caps look."
+    "Captions from the intended lines in the brand's type and color."
   ],
   "ledger": {
     "estimate_credits": null,
