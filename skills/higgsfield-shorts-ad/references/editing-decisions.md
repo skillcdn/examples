@@ -12,6 +12,7 @@ The reference video itself is never a build material. No frame, clip, still or s
 | Titles, stickers, prices, calls to action, any on-screen text | Same reason. Text is set in the brand's type ([design.md](design.md)), not hallucinated. |
 | Frames, borders, split screens, rounded masks, letterboxing | Geometry is deterministic in ffmpeg. |
 | Logos and product packshots as overlays | The real asset, pixel-exact, from the product's site or the user's upload. |
+| App screens, search boxes, chat bubbles, phone interfaces | Composed in code from the product's own screenshots, or drawn as a still in the style line and overlaid; models garble interface text. |
 | End cards | Composed as a layout in the brand's type and colors ([design.md](design.md)), lightly animated; no reason to generate. |
 | Music bed | Licensed or user-supplied track, mixed with ducking under speech. |
 | Freeze frames, speed ramps, zooms on a still frame | Pure post-production. |

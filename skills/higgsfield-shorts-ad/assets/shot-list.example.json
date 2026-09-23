@@ -8,6 +8,8 @@
   },
   "product": "Example sparkling water",
   "language": "en",
+  "medium": "live action",
+  "style_line": "Photoreal, unretouched, natural skin texture, soft morning window light, handheld close-ups, shallow depth of field.",
   "aspect_ratio": "9:16",
   "tier": { "resolution": "480p", "mode": "std", "image": "1k" },
   "design": {

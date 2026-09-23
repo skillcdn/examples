@@ -30,6 +30,8 @@ Do not use a higher tier for drafts, even when the difference in credits looks s
 
 Audio: keep native audio on for shots with dialogue or diegetic sound, off for shots that get music in the edit. Turning audio off is cheaper on some models and free on others; the preflight tells.
 
+**Animated looks.** Both families animate a drawn first frame; no style parameter is needed, the frame and the style line in the prompt set the look. The recommendation rules below hold; a catalog entry that says the model holds stylized or anime looks steady decides a tie.
+
 ## Preflight
 
 Call `generate_video` with `get_cost: true` and the exact parameters a shot will use. Nothing is submitted and nothing is charged. Cost depends on the model, the duration, the tier and the audio flag, not on the prompt or the reference media, so preflight once per distinct combination per family and reuse the number for every shot that shares it. Because it is free, it is done before the user sees the plan (phase 4), and again for any shot the user changes.

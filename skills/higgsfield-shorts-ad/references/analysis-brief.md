@@ -40,7 +40,10 @@ The frames, the sheet, the audio and the imported reference are for looking and 
 Duration: <s> · Frame: <w>x<h> (<aspect>) · Language: <code> · Shots: <n>
 
 ## Why it works
-<The mechanism, not the content. Hook: what stops the thumb in the first two seconds and how (a question, a shock, a face, a claim). Tension: what the viewer wants resolved. Turn: the moment the ad changes direction. Payoff: what the product delivers and how it is shown. Call to action: its wording and timing. Pacing: how cut rhythm carries these. Keep: the mechanism. Reinvent: the situation, the setting, the cast, the lines.>
+<The mechanism, not the content. Hook: what stops the thumb in the first two seconds and how (a question, a shock, a face, a claim). Tension: what the viewer wants resolved. Turn: the moment the ad changes direction. Payoff: what the product delivers and how it is shown. Call to action: its wording and timing. Pacing: how cut rhythm carries these. Keep: the mechanism, the medium and the look. Reinvent: the situation, the setting, the cast, the lines.>
+
+## Medium and look
+<Live action, 2D animation, 3D animation, stop motion or mixed, and the style in the words an image model follows: line (clean, sketchy, none), color and shading (flat, cel, painterly), backgrounds (painted, photographic), light, camera (static, slow pans, handheld), how faces are drawn. This becomes the style line of phase 3.>
 
 ## Mood and pacing
 <Two or three sentences: tone, energy, color, camera style, cut rhythm.>
@@ -59,7 +62,7 @@ Duration: <s> · Frame: <w>x<h> (<aspect>) · Language: <code> · Shots: <n>
 |---|---|---|---|---|---|
 
 ## Cast
-<One entry per person: apparent age range, build, hair, skin tone, clothing, expression, role. Descriptive only; never identify a real person.>
+<One entry per person: apparent age range, build, hair, skin tone, clothing, expression, role; in an animated reference, how the style draws people (proportions, line, eyes). Descriptive only; never identify a real person.>
 
 ## Sound design
 <Music: yes/no, genre, where it starts. Effects: list with timing. Silence or room tone. Voice: on-camera, voice-over, or none.>

@@ -5,7 +5,7 @@ The text in the ad is part of the brand. Nothing is left to a burner's default, 
 ## Where the look comes from
 
 1. **The product's site.** Read its stylesheet in the sandbox (`curl -sL` the page, then the linked CSS): the `font-family` stacks for headings and body, any Google Fonts link, the CSS color variables or the three dominant colors (ground, text, accent), the logo's clear space. Record them in the intake record.
-2. **The reference.** Where its captions sit, their size relative to the frame, weight, case, whether text pops or holds, and how on-screen text is used (thoughts, labels, stickers).
+2. **The reference.** Where its captions sit, their size relative to the frame, weight, case, whether text pops or holds, how on-screen text is used (thoughts, labels, stickers), and the lettering class of its text (hand-lettered, brush, serif, geometric), which sets the classification when the site's own type is a generic system stack.
 3. **The product.** What the ad must feel like: premium, playful, urgent, traditional. The type follows the feeling when the site's own type cannot be used.
 
 ## Choosing the type

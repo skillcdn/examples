@@ -13,6 +13,7 @@ Judge each take right after it is generated, from watching it and from its Whisp
 | Ambiguous | A wrong or missing word changes the meaning; the brand or product name, or a signature phrase such as the tagline, is wrong, slurred or a near-homophone; the line is cut off, mumbled, overlapped by another voice, or in the wrong language. | Fix in code if possible, otherwise regenerate. |
 | Broken | No speech where there should be, or speech where there should be none, judged from loudness and Whisper's no-speech probability, not from the transcript alone. | Regenerate. |
 | Flat | The words are right but the performance is not the beat: no visible emotion, the wrong emotion, no turn where the shot has one, or a dead pause. | Trim to the good part when it exists; otherwise regenerate once with the performance line made concrete (the expression, the gesture, the pace, the eye line), not longer. |
+| Drifted | The look changes inside the take or against the frame: a drawn character turning photoreal, a shift of style, palette or proportions, a background that changes. | Trim to the good part when it exists; otherwise regenerate once with the style line first in the prompt and the medium stated. |
 
 Do not chase a perfect match. Two takes with the same meaning are both fine; the credits are better kept for a shot that is actually wrong. The exception is the brand's own words: a tagline said almost right is said wrong, because the audience knows it.
 
@@ -57,7 +58,7 @@ Video models with native dialogue have no pronunciation dictionary, and the tran
 - One retry per shot comes out of the reserve the user accepted and is taken without asking.
 - A second retry for the same shot needs the user's consent, with the ledger shown: what was spent, what is left, and what the alternative in code would look like.
 - When the reserve is gone, every retry needs consent.
-- Never regenerate a shot that was already accepted to make it "better". Only ambiguous or broken takes are retried.
+- Never regenerate a shot that was already accepted to make it "better". Only ambiguous, broken, flat or drifted takes are retried.
 
 ## Record it
 
