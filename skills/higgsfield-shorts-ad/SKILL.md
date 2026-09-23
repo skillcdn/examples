@@ -17,7 +17,7 @@ This skill is the whole workflow. Do not switch to one of Higgsfield's bundled a
 ## How the user is involved
 
 - **Questions:** only for the reference video and the product, and only when the request did not give them. Nothing else is ever asked; it is derived.
-- **Checkpoints:** the plan with its cost, the portraits, the first frames, each take, the clean master, the finished ad. Each is one short message in plain words: what was made, the recommendation, and that one word ("OK" or its equivalent in the user's language) continues. Anything can be changed at a checkpoint, including a derived setting.
+- **Checkpoints:** the plan with its cost, the portraits, the first frames, the clean master, the finished ad. Each is one short message in plain words: what was made, the recommendation, and that one word ("OK" or its equivalent in the user's language) continues. Anything can be changed at a checkpoint, including a derived setting. Takes are not a checkpoint: once the frames and the lines are approved, the takes are generated one after another, each judged by the agent and reported, and the user sees them together with the clean master.
 - **Go-ahead:** when the user says to go ahead alone, the checkpoints after the cost are skipped and the agent judges by the references. The cost is confirmed in every mode, because spending needs consent.
 - **Changes mid-run:** a change asked for at any point (another language, a shorter ad, other captions, a different look for a character) is applied from that point on. When it costs credits within the accepted budget, the cost is reported at the next checkpoint; when it would exceed the budget, it is re-quoted and approved first.
 
@@ -113,9 +113,8 @@ Produces one **take** per shot and the running **budget ledger**.
 
 1. Generate shot 1 only: `count` 1, `use_unlim` set explicitly, the approved first frame as `start_image`, the portrait in the identity role too where the model has one, native audio on, and the intended line quoted verbatim in the prompt with an explicit instruction that the character speaks exactly these words in the dialogue language. Never use the batch tool. A take takes minutes: poll `jobs_wait` until it is terminal.
 2. Review the take before anything else: watch it (or its frames from the sandbox), transcribe it with Whisper, compare the transcript with the intended line, and give it a verdict by [regeneration.md](references/regeneration.md): **accept**, **accept with edit** (fixable in code), or **regenerate**.
-3. Record the take in the ledger: shot, model, parameters, credits charged, verdict.
-4. Checkpoint: the take's hosted link, one line on what it says against what it should say, and the recommendation ("keep", or "retry, because ..."). "OK" follows the recommendation; the user may ask for a retry with a change, or change the shot. Only then generate the next shot. With the go-ahead, the verdict decides, with one retry per shot without asking.
-5. If the ledger reaches the accepted estimate, stop and ask before continuing.
+3. Record the take in the ledger: shot, model, parameters, credits charged, verdict. Keep a one-line report per take (its link, what it says against what it should say, the verdict) for the clean-master checkpoint.
+4. Act on the verdict without stopping: accept, or regenerate once from the reserve as phase 10 says, then generate the next shot. Stop only when a shot would need a second retry, or when the ledger reaches the accepted estimate; then ask.
 
 ### Phase 8: Assemble and edit in code
 
@@ -124,7 +123,7 @@ Produces the **clean master**.
 1. Download every accepted take into one `sandbox_exec` command, cut and concatenate in shot order, and apply the edit plan: inserts, picture-in-picture, frames, borders, text, logo, end card, sound effects, music bed with ducking under speech. Reserve the output with `media_upload` before the command and PUT the file at the end of the same command; the sandbox is discarded between calls.
 2. Never prompt the video model for an overlay. Captions, frames, text, logos and end cards are always code ([editing-decisions.md](references/editing-decisions.md)).
 3. Verify the master with `ffprobe`: duration, one video stream, one audio stream, 9:16. Confirm the upload with `media_confirm`.
-4. Checkpoint: the clean master's link and one line on what was added and dropped. "OK" continues to captions.
+4. Checkpoint: the clean master's link, the one-line report of every take (link, what it says, verdict, retries), and one line on what was added and dropped. "OK" continues to captions; the user may also ask for a retry of any shot here, re-quoted if it exceeds the budget.
 
 ### Phase 9: Captions
 
@@ -138,7 +137,7 @@ Produces the **captioned master** ([captions.md](references/captions.md)).
 
 ### Phase 10: Regenerate what is ambiguous
 
-Applies to any take whose dialogue is not clearly understood ([regeneration.md](references/regeneration.md)). At the take checkpoint this is the recommendation the user sees; with the go-ahead it is the rule.
+Applies to any take whose dialogue is not clearly understood ([regeneration.md](references/regeneration.md)). The agent applies it on its own during phase 7; the user sees the verdicts at the clean-master checkpoint.
 
 - Ambiguous means: the transcript of the take differs from the intended line in a way a listener would notice, or the speech is mumbled, cut off or overlapped. A line that is close, with the same meaning and no wrong words, is fine. Do not chase perfection.
 - Regenerate only that shot, at the same tier, from the same first frame and portrait, with the intended line quoted verbatim in the prompt and the audio instruction made explicit. One retry per shot from the reserve; a second retry only with the user's consent.
@@ -166,7 +165,7 @@ Hand over, in one message, in plain words:
 8. Every spoken word is produced by the video model in the take. No text-to-speech, dubbing or voice tools, for on-camera lines or voice-over.
 9. Overlays are code: captions, frames, borders, text, logos, end cards, inserts. Never asked of the video model.
 10. Captions show the intended line. Speech-to-text supplies timing only.
-11. Regenerate only what the take checkpoint or the ambiguity rules call for; close enough is accepted.
+11. Regenerate only what the ambiguity rules call for, or what the user asks for at the clean-master checkpoint; close enough is accepted.
 12. Every credit is preflighted, recorded in the ledger, and never exceeds what the user accepted.
 13. Free-trial unlimited generations are used only when the user explicitly asks for them; `use_unlim` is set explicitly on every generation call.
 14. No bundled Higgsfield workflow replaces this skill; only `subtitles` is borrowed, for the caption burn.
