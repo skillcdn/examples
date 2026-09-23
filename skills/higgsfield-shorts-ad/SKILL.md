@@ -19,7 +19,7 @@ This skill is the whole workflow. Do not switch to one of Higgsfield's bundled a
 - **Questions:** only for the reference video and the product, and only when the request did not give them. Nothing else is ever asked; it is derived.
 - **Checkpoints:** the plan with its cost, the portraits, the first frames, each take, the clean master, the finished ad. Each is one short message in plain words: what was made, the recommendation, and that one word ("OK" or its equivalent in the user's language) continues. Anything can be changed at a checkpoint, including a derived setting.
 - **Go-ahead:** when the user says to go ahead alone, the checkpoints after the cost are skipped and the agent judges by the references. The cost is confirmed in every mode, because spending needs consent.
-- **Changes mid-run:** a change asked for at any point (another language, a shorter ad, other captions, a different look for a character) is applied from that point on, and re-quoted first when it costs credits.
+- **Changes mid-run:** a change asked for at any point (another language, a shorter ad, other captions, a different look for a character) is applied from that point on. When it costs credits within the accepted budget, the cost is reported at the next checkpoint; when it would exceed the budget, it is re-quoted and approved first.
 
 ## Requirements
 
@@ -103,8 +103,8 @@ Produces the **approved portraits** ([cast.md](references/cast.md)).
 
 Produces one **approved first frame** per shot ([cast.md](references/cast.md)).
 
-1. For each shot, in order, generate one 9:16 still with the first-frame model at its cheapest setting: the approved portrait of the shot's character as the model's reference input, and the shot's first-frame description as the prompt (framing, setting, pose, expression, light, the product image where it appears). A shot with no character still gets a frame. `count` 1, `use_unlim` set explicitly, each recorded in the ledger.
-2. Look at each frame before the next: right person, right clothing, right setting and framing, no text, no artifacts. A frame that fails is regenerated once from the reserve before it is shown.
+1. For each generated shot, in order, generate one 9:16 still with the first-frame model at its cheapest setting: the approved portrait of the shot's character as the model's reference input, and the shot's first-frame description as the prompt (framing, setting, pose, expression, light, the product image where it appears). A shot with no character still gets a frame; a segment on the edit route (an end card, an insert) gets none. One call per frame, `count` 1, `use_unlim` set explicitly, each recorded in the ledger. Frames cost a fraction of a take, so they may be generated back to back and looked at as a set; only takes wait for each other.
+2. Look at every frame: right person, right clothing, right setting and framing, no text, no artifacts. A frame that fails is regenerated once from the reserve before the set is shown.
 3. Checkpoint: all first frames in one message, in shot order, each with its link and one line on what the shot will do from there. "OK" approves them all; otherwise the user says which frame to change and how. A changed frame is regenerated and shown again.
 
 ### Phase 7: Generate takes, one at a time
