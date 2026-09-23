@@ -49,6 +49,7 @@ The reference video itself is never a build material. No frame, clip, still or s
 - A take generated with audio off has no audio stream at all, not a silent one. Give it a room-tone or silent track (`anullsrc`, or sox noise low-passed) before concatenation, or the concat drops audio.
 - Text is drawn from files with `drawtext` and `expansion=none`, which avoids escaping punctuation in non-Latin text; `amix` with `normalize=0` keeps the levels that were set; a dip to white is two fades around a cut, which the concat demuxer accepts.
 - Verify beyond `ffprobe`: per-second loudness of the master (speech where it should be, nowhere else), a 1 fps contact sheet, and a strip of frames at every text moment, since the agent cannot play video.
+- Keep synthetic accents (a chime, a thump, a whoosh) clear of the first word of a line: the caption step finds speech onsets in the loudness curve, and an effect on top of an onset reads as speech.
 - Work at the take's native resolution; do not upscale drafts. Output 9:16 H.264 with AAC audio.
 - Keep the caption burn as a separate step on the clean master ([captions](captions.md)), so a caption fix never touches the edit.
 - Fonts for text overlays: use the caption fonts preinstalled in the sandbox or fetch a font the user is licensed to use. Check that the font covers the language's script before rendering.
