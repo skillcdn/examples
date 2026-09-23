@@ -4,9 +4,9 @@ Every person in the ad has an approved portrait. The portrait keeps the characte
 
 ## Who needs a portrait
 
-One portrait per cast member in the shot list: the people named in the brief's "Cast" section, rewritten in phase 3 for the user's product and for what must differ. A voice-over with nobody on screen needs no portrait. A product is not a cast member; it appears through the product site's images, a user-supplied image or an overlay, as [editing-decisions.md](editing-decisions.md) says.
+One portrait per cast member in the shot list: the people named in the brief's "Cast" section, rewritten in phase 3 for the user's product and for what must differ. A voice-over, or a speaker who stays outside the frame, needs no portrait; the frame prompt says that this person is not visible (a back, a shoulder, or nothing), so that the model invents no second face. A product is not a cast member; it appears through the product site's images, a user-supplied image or an overlay, as [editing-decisions.md](editing-decisions.md) says.
 
-A person the product's own site presents (its founder, its face, a mascot) is the advertiser's own asset and may be cast when the composition calls for it. Their site photo, imported with `media_import_url`, is then the portrait itself; when the plan wants a different look (period clothing, a setting) or the ad is animated (the person drawn in the style line from the photo), the image model makes the portrait with that photo as its reference input, and the user approves it like any other. The plan checkpoint says whether a site person appears.
+A person the product's own site presents (its founder, its face, a mascot) is the advertiser's own asset and may be cast when the composition calls for it. Their site photo, imported with `media_import_url`, is then the portrait itself; when the plan wants a different look (period clothing, a setting) or the ad is animated (the person drawn in the style line from the photo), the image model makes the portrait with that photo as its reference input, and the user approves it like any other. The plan checkpoint says whether a site person appears. When the reference is an earlier ad of the same product and shows that persona, the persona is still cast from the site's photo and the plan's description, never from the reference's frames.
 
 ## Which image model
 
@@ -24,7 +24,7 @@ Animation or a stylized look:
 models_explore  action: recommend  type: image  query: character design of a fictional person in a described 2D animation style, consistent character for image-to-video, text and image reference input
 ```
 
-For live action, take the recommendation for character identity that works from a text prompt alone. For animation, the identity-portrait models are photoreal and are not used: take the general image model with an image-reference role, which then makes the portraits and the first frames alike, with the style line in every prompt; a portrait is the character in front and three-quarter view on a plain ground, in the style. Read the model's parameters with `action: get`. Lock the cheapest setting it exposes: the lowest `resolution` or `quality`, a `budget` parameter at its minimum. A 1k image is more than the video model needs. Preflight with `generate_image` and `get_cost: true`, once per model and setting, and put the sum in the estimate.
+For live action, take the recommendation for character identity that works from a text prompt alone. For animation, the identity-portrait models are photoreal and are not used: take the general image model with an image-reference role, which then makes the portraits and the first frames alike, with the style line in every prompt; a portrait is the character in front and three-quarter view on a plain ground, in the style. When the recommendation returns more than one reference-capable model, the cheaper one at its lowest setting is used and the plan names it as a derived setting. Read the model's parameters with `action: get`. Lock the cheapest setting it exposes: the lowest `resolution` or `quality`, a `budget` parameter at its minimum. A 1k image is more than the video model needs. Preflight with `generate_image` and `get_cost: true`, once per model and setting, and put the sum in the estimate.
 
 The identity model may output a single aspect ratio, ignore the framing in the prompt and return a character sheet (front, back, face) instead of a portrait; that is fine, a sheet is a better identity reference. First frames (below) need a different kind of model, one with an image-reference role: find it with a second `models_explore` query (`recommend`, type `image`, "photoreal scene from a reference portrait, image reference input"), lock its cheapest setting, and preflight it too. Read the video model's `aspect_ratios` and `medias[].roles` in phase 4 so that every image is made in a ratio the role accepts.
 
@@ -51,7 +51,7 @@ One paragraph, in this order, built from the brief's cast description as rewritt
 
 ## Approval loop
 
-1. Generate one portrait per cast member, one at a time, `count` 1, `use_unlim` set explicitly.
+1. Generate one portrait per cast member, one call each with `count` 1 and `use_unlim` set explicitly; the calls may go out together and be collected with one `jobs_wait`.
 2. Show each portrait with its hosted link and the description it was made from. Ask: approve, or what to change (age, hair, clothing, expression, setting, style).
 3. A change is a new generation from the edited description, preflighted and recorded in the ledger. The reserve covers one retry per cast member; beyond that, ask before generating.
 4. The approved portrait's media id or job id goes into the shot list. Where the portrait differs from the written description (a longer coat, a heavier chain), the portrait wins: update the description and every prompt to match it, so the words and the picture agree. Every frame and video prompt for that character repeats the clothing and the two or three most identifying traits.
@@ -60,4 +60,4 @@ When the user has said to go ahead without reviews, judge each portrait against 
 
 ## Reuse
 
-Keep the portrait media ids in the shot list and in the ledger. A later run for the same brand can reuse an approved portrait instead of generating a new one; offer it, and let the user decide.
+Keep the portrait media ids in the shot list and in the ledger. A later run for the same brand can reuse an approved portrait instead of generating a new one; offer it, and let the user decide. The agent learns of an earlier run only from the user or from the account's media list, and a photoreal portrait is at most a reference image, not a portrait, for an animated ad.

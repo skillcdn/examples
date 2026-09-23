@@ -34,7 +34,7 @@ Audio: keep native audio on for shots with dialogue or diegetic sound, off for s
 
 ## Preflight
 
-Call `generate_video` with `get_cost: true` and the exact parameters a shot will use. Nothing is submitted and nothing is charged. Cost depends on the model, the duration, the tier and the audio flag, not on the prompt or the reference media, so preflight once per distinct combination per family and reuse the number for every shot that shares it. Because it is free, it is done before the user sees the plan (phase 4), and again for any shot the user changes.
+Call `generate_video` with `get_cost: true` and the exact parameters a shot will use. Nothing is submitted and nothing is charged. Cost depends on the model, the duration, the tier and the audio flag, not on the prompt or the reference media, so preflight once per distinct combination per family and reuse the number for every shot that shares it. Because it is free, it is done before the user sees the plan (phase 4), once the shot list fixes the durations, and again for any shot the user changes. Prices have been flat per second so far, but only numbers that came back are presented.
 
 ```
 generate_video  params: { model: <id>, prompt: <shot prompt>, duration: <s>, aspect_ratio: "9:16", <tier parameters>, get_cost: true }

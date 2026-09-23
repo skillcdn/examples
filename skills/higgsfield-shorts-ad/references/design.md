@@ -4,13 +4,14 @@ The text in the ad is part of the brand. Nothing is left to a burner's default, 
 
 ## Where the look comes from
 
-1. **The product's site.** Read its stylesheet in the sandbox (`curl -sL` the page, then the linked CSS): the `font-family` stacks for headings and body, any Google Fonts link, the CSS color variables or the three dominant colors (ground, text, accent), the logo's clear space. Record them in the intake record.
+1. **The product's site.** Read its stylesheet in the sandbox (`curl -sL` the page, then the linked CSS): the `font-family` stacks for headings and body, any Google Fonts link, the CSS color variables or the three dominant colors (ground, text, accent), the logo's clear space. Record them in the intake record. When the site shows two marks (the header's and the favicon), the header's is the logo, used alike in inserts and on the end card.
 2. **The reference.** Where its captions sit, their size relative to the frame, weight, case, whether text pops or holds, how on-screen text is used (thoughts, labels, stickers), and the lettering class of its text (hand-lettered, brush, serif, geometric), which sets the classification when the site's own type is a generic system stack.
 3. **The product.** What the ad must feel like: premium, playful, urgent, traditional. The type follows the feeling when the site's own type cannot be used.
 
 ## Choosing the type
 
-- Use the site's own family when it is an open-license font that can be downloaded (most Google Fonts, SIL Open Font License). Otherwise the closest open-license family in the same classification: serif for serif, geometric sans for geometric sans, display for display, hand for hand. Two weights at most, one family for captions and text, a second only for the brand name if the site does so.
+- Use the site's own family when it is an open-license font that can be downloaded (most Google Fonts, SIL Open Font License). In a mixed stack (system fonts first, a web font as fallback), the first family that can be downloaded under an open license is the site's own. Otherwise the closest open-license family in the same classification: serif for serif, geometric sans for geometric sans, display for display, hand for hand. Two weights at most, one family for captions and text, a second only for the brand name if the site does so.
+- A glyph the family lacks (a hanja, a symbol) comes from a fallback font of the same classification, set on the line's baseline and scaled so its ink height matches the line's; check it on a zoomed crop.
 - Check glyph coverage for the dialogue language before anything is rendered; the sandbox's preinstalled caption fonts cover Latin only ([captions.md](captions.md) says where to fetch others).
 - Never the "default subtitle" look (bold white sans, black outline, bottom center) unless the reference itself is UGC-style and the brand has no type of its own.
 
@@ -21,10 +22,10 @@ Sizes are for a 1080x1920 frame and scale with the output.
 | Element | Size | Style | Placement |
 |---|---|---|---|
 | Captions | 4.5 to 5.5 percent of frame height | Brand text color when it reads against the footage, else white; a soft shadow or a 2 px outline; sentence case unless the reference uses caps | Where the reference puts them, inside safe zones, never over a face |
-| On-screen text (thoughts, labels) | 6 to 8 percent | The brand's display style; the accent color for one word at most | Near the subject, inside safe zones |
+| On-screen text (thoughts, labels) | 6 to 8 percent | The brand's display style; the accent color for one word at most | Near the subject, inside safe zones, clear of faces and of the prop in hand at every moment of the shot |
 | End card | Three sizes at most: brand name 9 to 11 percent, tagline 5 to 6, body or address 3.5 to 4 | Brand ground color or a darkened still under it; text color and one accent; letter-spacing for uppercase Latin; line height 1.3 | Logo above or left of the name, 8 percent margins, a column no wider than 84 percent |
 
-Contrast of body text against its ground at least 4.5:1. One accent color. A slow move (zoom or fade) on the end card, on screen for four to six seconds. The address and the call to action are the last things to fade.
+Contrast of body text against its ground at least 4.5:1. One accent color. A slow move (zoom or fade) on the end card, on screen for four to six seconds. The address and the call to action are the last things to fade. A reference without an end card still gets one: the brand's card is the ad's call to action, named at the plan checkpoint as a derived decision.
 
 ## Building it in the sandbox
 

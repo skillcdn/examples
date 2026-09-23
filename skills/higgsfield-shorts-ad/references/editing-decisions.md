@@ -12,7 +12,7 @@ The reference video itself is never a build material. No frame, clip, still or s
 | Titles, stickers, prices, calls to action, any on-screen text | Same reason. Text is set in the brand's type ([design.md](design.md)), not hallucinated. |
 | Frames, borders, split screens, rounded masks, letterboxing | Geometry is deterministic in ffmpeg. |
 | Logos and product packshots as overlays | The real asset, pixel-exact, from the product's site or the user's upload. |
-| App screens, search boxes, chat bubbles, phone interfaces | Composed in code from the product's own screenshots, or drawn as a still in the style line and overlaid; models garble interface text. |
+| App screens, search boxes, chat bubbles, phone interfaces | Composed in code from the product's own pages (a mobile-viewport screenshot with the sandbox's Playwright and headless Chromium), or drawn as a still in the style line, then overlaid; models garble interface text. |
 | End cards | Composed as a layout in the brand's type and colors ([design.md](design.md)), lightly animated; no reason to generate. |
 | Music bed | Licensed or user-supplied track, mixed with ducking under speech. |
 | Freeze frames, speed ramps, zooms on a still frame | Pure post-production. |
@@ -45,11 +45,11 @@ The reference video itself is never a build material. No frame, clip, still or s
 ## Sandbox conventions
 
 - One self-contained script does the whole assembly: download takes, fonts and assets, cut, filter, mix, mux, probe, upload. Run it with `background: true` and poll its log; an encode of a whole ad plus its uploads exceeds the foreground transport timeout. The sandbox is discarded between calls and recycled during long waits, so the script fetches everything it needs itself.
-- Reserve the output with `media_upload` before the script, and end the script with the PUT of the finished file, with the `Content-Type` header the upload result names. Call `media_confirm` only after HTTP 200.
+- Reserve the output with `media_upload` before the script, and end the script with the PUT of the finished file, with the `Content-Type` header the upload result names. Call `media_confirm` only after HTTP 200. Reserve a new upload for every revision: a hosted URL is cached on its first fetch, and an overwrite after that stays invisible for minutes. Presigned URLs are long (about 2 KB each) against a 16,000-character command limit: write them into a file in one call and read them from the script in the next, back to back.
 - Prepare the assembly while the last take renders: rasterize the logo, synthesize the effects with sox, fetch the font, write and syntax-check the script. The assembly then starts within a minute of the last verdict.
 - A take generated with audio off has no audio stream at all, not a silent one. Give it a room-tone or silent track (`anullsrc`, or sox noise low-passed) before concatenation, or the concat drops audio.
 - Text is drawn from files with `drawtext` and `expansion=none`, which avoids escaping punctuation in non-Latin text; `amix` with `normalize=0` keeps the levels that were set; a dip to white is two fades around a cut, which the concat demuxer accepts.
-- Verify beyond `ffprobe`: per-second loudness of the master (speech where it should be, nowhere else), a 1 fps contact sheet, and a strip of frames at every text moment, since the agent cannot play video.
+- Verify beyond `ffprobe`, since the agent cannot play video. The master passes when its duration matches the cut plan within half a second, it has one video and one audio stream, per-second loudness shows speech only in the planned windows, a 1 fps contact sheet shows every shot in order, and frames sampled across every text moment show no text over a face or the prop in hand and the end card whole for its planned time.
 - Keep synthetic accents (a chime, a thump, a whoosh) clear of the first word of a line: the caption step finds speech onsets in the loudness curve, and an effect on top of an onset reads as speech.
 - Work at the take's native resolution; do not upscale drafts. Output 9:16 H.264 with AAC audio.
 - Keep the caption burn as a separate step on the clean master ([captions](captions.md)), so a caption fix never touches the edit.

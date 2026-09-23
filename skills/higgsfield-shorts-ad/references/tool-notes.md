@@ -8,10 +8,12 @@ How the Higgsfield tools behaved in real runs of this skill, with the workaround
 - 2026-09-23: the sandbox's ffmpeg rejects `tile=6x0`; both tile dimensions must be given. Because the analysis command is one `&&` chain, a failure there skips the transcript and the upload. The brief template uses `tile=6x6` and `sheet%02d.png`.
 - 2026-09-23: a presigned upload URL from `media_upload` is signed with the content type. A PUT without `-H 'Content-Type: ...'` fails; the `media_upload` result names the header to send.
 - 2026-09-23: the sandbox's own curl of the product page returned the whole page text, so a separate web-reading tool was not needed for the words; it is still useful when a page is script-rendered.
+- 2026-09-23, second run: the whole analysis pass, Whisper download included, finished in about 40 seconds. A 38-second reference fit one `tile=6x7` sheet. Frames zipped and uploaded as a general file (`.zip`, `application/octet-stream`, `media_confirm` type `file`) could be downloaded and viewed on the client.
 
 ## Scene analysis (`video_analysis_create`, `video_analysis_status`)
 
 - 2026-09-23: a 27-second reference imported from a direct link stayed `queued`, with an unchanged `updated_at`, through eight polls over fifteen minutes and never completed or failed. The brief was built from the frames and the Whisper transcript instead, as the template allows. Do not let this block phase 2.
+- 2026-09-23, second run: the same with a 38-second animated reference; still queued after 80 minutes.
 
 ## Preflight (`generate_video` and `generate_image` with `get_cost: true`)
 
@@ -20,23 +22,30 @@ How the Higgsfield tools behaved in real runs of this skill, with the workaround
 - 2026-09-23: a reference-mode video model (Seedance 2.5 `omni_reference`) needs a media input even for a preflight; the product image's media id served as the placeholder.
 - 2026-09-23: turning native audio off made Kling 3.0 cheaper and Seedance 2.5 not at all (a flat per-second price either way).
 - 2026-09-23: an image model's preflight returned `credits: 1` with `credits_exact: 0.12`; the estimate used the rounded figure, and the ledger records what the transaction shows.
+- 2026-09-23, second run: none of twelve video preflights returned a preset notice. Prices were flat per second (Seedance 2.5 480p with audio 3 per second at 4, 5, 6, 8 and 10 seconds; Kling 3.0 std with sound 2 per second); the reference-capable image model cost 0.25 per image at its lowest setting in 9:16 and 3:4, with or without a reference input, and the other candidate 2.
+- 2026-09-23, second run: the balance fell by 96 during a preflight-only phase. `transactions` and `show_generations` showed four generations from another session on the same account minutes earlier. Check `transactions` before blaming a preflight, and say so to the user in one line.
 
 ## Models (`models_explore`)
 
 - 2026-09-23: the identity-portrait recommendation (Soul Cast) produced only 16:9 and took no reference input, so first frames needed a second, reference-capable image model (Nano Banana Pro that day). cast.md now finds the two models separately.
 - 2026-09-23: Soul Cast ignored the prompt's framing and returned a 2048x1152 three-panel character sheet (full body front, full body back, face) every time. It served as the identity reference as it was. Four portraits cost 0.12 credits each; the preflight had shown a rounded 1.
+- 2026-09-23, second run: Kling 3.0 exposed `start_image` and `end_image` only, no identity role; Seedance 2.5 exposed `image_references`. `models_explore` with `get` returned nothing beyond what `search` had already carried.
 
 ## Jobs (`generate_image`, `generate_video`, `jobs_wait`)
 
 - 2026-09-23: `jobs_wait` accepted a single job id from `generate_image` (not from a batch tool) and returned the result URL when the job finished, in two 15-second waits per portrait. The tool text's mention of batch job ids is not a restriction.
 - 2026-09-23: `generate_image` never returned the preset notice that `generate_video` preflights did.
+- 2026-09-23, second run: `jobs_wait` reported a take as in progress for three to ten minutes after its result file and its charge existed, and listed in-progress video jobs with type `image`; seven takes took about 45 polls. Prepare the next step during the wait rather than polling faster.
 
 ## Takes and assembly
 
 - 2026-09-23: a 4-second Seedance 2.5 take at 480p rendered in about three and a half minutes, a 10-second one in five to eight; `jobs_wait` is capped at 15 seconds, so a five-shot run polled about 75 times. Every charge equalled its preflight.
 - 2026-09-23: a take generated with `generate_audio: false` came back with no audio stream at all. The assembly synthesized room tone for it before the concat.
+- 2026-09-23, second run: a Seedance 2.5 voice-over take started mid-word at frame 0 and lost its first consonant (묻는 was heard as 웃는); the retry, prompted for about half a second of silence before the line, came with a 0.47-second lead and the exact words.
+- 2026-09-23, second run: a hosted media URL was cached by the CDN on its first fetch; an overwrite after that stayed invisible for about eight minutes and query strings did not bypass it, while an overwrite before the first fetch showed at once. Files in the sandbox survived back-to-back calls, which allowed a patch-and-rerun; presigned URLs of about 2.3 KB each made the 16,000-character command limit binding.
+- 2026-09-23, second run: Nanum Myeongjo has no hanja (占, 絲); Noto Serif KR supplied those two glyphs. The subtitles filter needs the English family name, and Nanum Myeongjo's first name record is Korean.
 - 2026-09-23: the assembly encode (29 seconds of video plus uploads) took about 50 seconds; run as a background script it finished cleanly, where a foreground call would have hit the transport timeout seen in phase 2. The sandbox had been recycled during the last take's wait, so the script re-fetched every input; a self-contained script is the safe shape.
-- 2026-09-23: the bundled `subtitles` workflow accepted the intended lines as a manifest, timed 21 words, and scored similarity 0.75 because of dialect and homophone spellings; the cue starts were within 0.3 seconds of the takes' word timestamps, so the score was ignored. It ships no Korean font (Noto Serif KR was passed in), its clean burner is white only, and its SRT cannot be uploaded (backend whitelist), so the cue list travels in the delivery.
+- 2026-09-23: the bundled `subtitles` workflow spread cues across pauses, ships no Korean font, burns only white, caps or paper looks, forbids a hand-rolled burn and asks the user about the look; captions.md therefore burns with ffmpeg directly. An SRT cannot be uploaded (backend whitelist), so the cue text travels in the delivery.
 
 ## Pronunciation outcomes
 
@@ -48,5 +57,6 @@ How the Higgsfield tools behaved in real runs of this skill, with the workaround
 
 - 2026-09-23: Whisper normalized a dialect pronoun to the standard one and wrote a two-word tagline as one word in both takes of the same shot; the medium model did the same. The user heard the first take as unnatural; the retry, prompted with "natural standard pronunciation", was chosen after a 10-millisecond RMS envelope showed a slightly longer closure gap inside the disputed word and a decode with the intended line as `initial_prompt` read it as two words.
 - 2026-09-23: on a sighing shot with no dialogue, Whisper with voice detection returned a low-confidence phrase on a stretch 13 dB under real speech, and without voice detection returned stock Korean phrases. Loudness and no-speech probability, not the transcript, settled it as silence.
+- 2026-09-23, second run: on the reference, whose speech sat 13 to 20 dB above a piano bed, voice detection (the default split and a 300-millisecond one) returned two garbage fragments with impossible timestamps; a decode without it and with `language="ko"` recovered all twelve lines. The brief's pass now decodes the reference without voice detection; the takes keep it.
 
 - 2026-09-23: Whisper `small` heard a Korean line as "니가 엄마 손재 기다린다" where the burned caption read "느그 엄마 손주 기다린다", and missed two on-screen lines that were never spoken. Frames are the ground truth for text; the transcript is the clock.
