@@ -35,6 +35,10 @@ If none of these keeps the meaning and the delivery natural, regenerate.
 
 - Same model, same tier, same duration, same aspect ratio. Regeneration is not the moment to upgrade quality.
 - Put the intended line in the prompt verbatim, in quotes, and state explicitly that the character says exactly these words, in which language, and nothing else. Keep the visual prompt unchanged so the take still cuts with its neighbors.
+- Aim the retry at the word that failed. When the user rejects a take, quote their complaint word for word and check that word in the review; a retry that fixes a different word is a wasted take.
+- Respell the failed word in the prompt the way it should sound, in the language's own script (Korean: the standard pronunciation written in Hangul, so "적혔다" is prompted as "저켰다"; English: hyphenated syllables). The intended line and the caption keep the correct spelling; only the prompt changes. This is the dictionary trick of text-to-speech tools, and the video model reads the prompt the same way.
+- If the respelled word fails too, change the word: a synonym without the difficult sound, chosen with the user, is cheaper than a third take.
+- Keep the conditions that published prompting guides agree on for native dialogue: five to ten words per line, moderate speed, the face front-on or three-quarter, no head turn while speaking, one language per line. A line that breaks these is rewritten before it is retried.
 - Start from the same approved first frame and pass the same portrait as identity input, exactly as in the first take ([cast](cast.md)), so the cast and the composition stay consistent. Nothing from the reference video, ever.
 - Generate one take. Judge it by the same table.
 
