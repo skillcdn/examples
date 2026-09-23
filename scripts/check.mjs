@@ -80,6 +80,23 @@ function unquote(value) {
   return quoted ? v.slice(1, -1) : v;
 }
 
+// The indexer reads front-matter with a real YAML parser. A plain (unquoted) scalar that YAML cannot parse
+// does not fail loudly there: the whole SKILL.md is dropped and the mount reports no skill. The two ways a
+// prose value breaks YAML are a colon followed by a space and a space followed by a hash; a value that
+// starts with an indicator character is the third.
+function checkPlainScalar(file, key, raw) {
+  const v = raw.trim();
+  if (!v) return;
+  const q = v[0];
+  if (q === '"' || q === "'") {
+    if (v.length < 2 || !v.endsWith(q)) fail(file, `${key}: unbalanced quotes`);
+    return;
+  }
+  if (/[[\]{}&*!|>%@`]/.test(q)) fail(file, `${key}: a value starting with "${q}" must be quoted`);
+  if (v.includes(": ") || v.endsWith(":")) fail(file, `${key}: a plain value cannot contain ": " (rephrase or quote it); the indexer would drop the file`);
+  if (v.includes(" #")) fail(file, `${key}: a plain value cannot contain " #" (quote it); the indexer would drop the file`);
+}
+
 // Minimal front-matter reader: top-level `key: value`, one level of nested mapping, and a sequence of
 // scalars. This is deliberately not a YAML parser; manifests here keep their front-matter simple enough
 // for one, and the indexer's failsafe-schema parser accepts the same subset.
@@ -108,6 +125,7 @@ function parseFrontMatter(text, file) {
       }
       const value = fields[current];
       if (item) {
+        checkPlainScalar(file, `${current} item`, item[1]);
         if (Array.isArray(value)) value.push(unquote(item[1]));
         else if (Object.keys(value).length === 0) fields[current] = [unquote(item[1])];
         else {
@@ -119,6 +137,7 @@ function parseFrontMatter(text, file) {
           fail(file, `mixed mapping and sequence under ${current}`);
           return null;
         }
+        checkPlainScalar(file, `${current}.${pair[1].trim()}`, pair[2]);
         value[pair[1].trim()] = unquote(pair[2]);
       }
       continue;
@@ -134,6 +153,7 @@ function parseFrontMatter(text, file) {
       fields[key] = {};
       current = key;
     } else {
+      checkPlainScalar(file, key, value);
       fields[key] = unquote(value);
       current = null;
     }
