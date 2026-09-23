@@ -1,5 +1,5 @@
 {
-  "$comment": "Example shot list produced in phase 2. Values are illustrative. Costs are filled in phase 3 from get_cost preflights, never typed by hand.",
+  "$comment": "Example shot list produced in phase 3. Values are illustrative. Costs are filled in phase 4 from get_cost preflights, never typed by hand.",
   "reference": "ref.mp4",
   "product": "Example sparkling water",
   "language": "en",

@@ -32,7 +32,7 @@ Audio: keep native audio on for shots with dialogue or diegetic sound, off for s
 
 ## Preflight
 
-For each shot and each family, call `generate_video` with the shot's exact parameters and `get_cost: true`. Nothing is submitted. Do it for every shot, because cost depends on duration and audio and shots differ.
+For each shot and each family, call `generate_video` with the shot's exact parameters and `get_cost: true`. Nothing is submitted and nothing is charged. Do it for every shot, because cost depends on duration and audio and shots differ. Because it is free, it is done before the user sees the plan (phase 4), and again for any shot the user changes.
 
 ```
 generate_video  params: { model: <id>, prompt: <shot prompt>, duration: <s>, aspect_ratio: "9:16", <tier parameters>, get_cost: true }
@@ -51,11 +51,14 @@ The numbers above are illustrative, shaped like a preflight taken on 2026-09-22 
 
 With the table, give the user the qualitative difference for this brief in two or three lines, drawn from the model descriptions in the catalog: for example, which one accepts a reference video or image for identity and product consistency, which one handles multi-shot continuity, which one supports the longer durations the shot list needs. Then ask:
 
-1. Kling or Seedance?
-2. Is the total, including the reserve, accepted as the budget for this run?
+1. Is the shot list right, or what should change?
+2. Kling or Seedance?
+3. Is the total, including the reserve, accepted as the budget for this run?
 
-Both answers stand for the rest of the run. If the user later asks for more shots or more retries, re-quote and re-ask.
+All three answers stand for the rest of the run. If the user later asks for more shots or more retries, re-quote and re-ask.
 
 ## Free-trial unlimited generations
 
 If the catalog reports that the user's account can spend free-trial unlimited generations on a model, say so in the estimate. Use `use_unlim: true` only when the user explicitly asks for it; never add it to save credits on their behalf, and never drop it once they asked. A rejected unlimited request comes back as an error, never as a silent charge.
+
+Set `use_unlim` explicitly on every generation call: `false` unless the user asked, `true` when they did. Left out, the server may withhold the job and return a question (`unlim_choice`) instead of a take. If that happens anyway, put the question to the user once and call again with their answer.

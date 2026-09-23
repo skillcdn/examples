@@ -1,10 +1,10 @@
 # Analysis brief
 
-The artifact of phase 1. Fill every section; write "none" rather than leaving a section out, so the user can see what was looked for.
+The artifact of phase 2. Fill every section; write "none" rather than leaving a section out, so the user can see what was looked for.
 
 ## Sandbox pass
 
-Run in one `sandbox_exec` call while `video_analysis_create` is processing. Replace `<url>` with the hosted URL of the confirmed upload or import. Keep the timeout at the maximum and use `background: true` for a reference longer than about a minute.
+Run in one `sandbox_exec` call, started with `background: true`, while `video_analysis_create` is processing. `<url>` is a link the sandbox can download: the original link when it points straight at a media file, otherwise the hosted URL of the confirmed upload or import (`show_medias` with type `video` lists it). Before the call, reserve an upload for the contact sheet with `media_upload` (filename `sheet.png`) and put its `upload_url` on the last line, so the sheet can be looked at by its hosted URL after `media_confirm`. The call returns a pid, a log path and a status path; poll them with a later `sandbox_exec` (`cat <status path>; tail -n 60 <log path>`) every 30 seconds or so. Whisper downloads its model on first use, so allow one to three minutes.
 
 ```sh
 curl -fsSL -o ref.mp4 '<url>' \
@@ -21,9 +21,10 @@ print("language:", info.language)
 for s in segs:
     print(f"{s.start:6.2f} {s.end:6.2f} {s.text.strip()}")
 PY
+curl -f -X PUT --upload-file sheet.png '<upload_url>'
 ```
 
-Look at the contact sheet and at individual frames for cast appearance and on-screen text. Frames are the ground truth for text and look; the scene analysis is the ground truth for structure; the transcript is the ground truth for dialogue.
+Look at the contact sheet (by its hosted URL, or downloaded where the client can view images) and at individual frames for cast appearance and on-screen text. Frames are the ground truth for text and look; the scene analysis is the ground truth for structure; the transcript is the ground truth for dialogue.
 
 ## Template
 
@@ -63,13 +64,14 @@ Generate: <shots>. Edit: <elements>. Drop: <elements, with why>.
 
 ## Intake
 
-Ask these together, once, only where the input did not already answer:
+Ask these together, in one message, only where the request did not already answer. When the request names no reference or no product, this message is the first thing the user sees.
 
-1. Which product or brand is this ad for, and what may it claim?
-2. What must be different from the reference: the product, the people, the words, the setting?
-3. What language should the dialogue and captions be in? (Default: the reference's language.)
-4. Should the ad be the same length as the reference? (Default: yes.)
-5. Keep the caption look of the reference, or use a specific style?
-6. Do you have product images the video should match? (Upload if yes.)
+1. Which video is the reference? A file (uploaded through the widget) or a link. Short is better: analysis accuracy drops with length.
+2. Which product or brand is this ad for, and what may it claim? With a link, say what was read from the page and ask only for corrections and for the claims.
+3. What must be different from the reference: the product, the people, the words, the setting?
+4. What language should the dialogue and captions be in? (Default: the language of the product's site or brief, else the reference's.)
+5. Should the ad be the same length as the reference? (Default: yes.)
+6. Keep the caption look of the reference, or use a specific style? (Default: the reference's.)
+7. Do you have product images the video should match? (Upload if yes.)
 
-The budget and the model are not asked here. They are asked in phase 3, with numbers in front of the user.
+State the defaults in the message, so that silence on a question means the default. The budget and the model are not asked here. They are asked in phase 4, with numbers in front of the user.

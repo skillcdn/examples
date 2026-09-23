@@ -32,9 +32,9 @@ Every element of the reference gets a build route in the analysis brief: **gener
 | Two shots of different framings or scenes | Two separate generations, concatenate in code | Cheaper to regenerate one; a hard cut is natural for shorts. |
 | A cut inside a shot of the reference (jump cut for pace) | One generation, then cut in code | Cutting is free. |
 | Picture-in-picture: an inset video playing over the main shot | Generate the inset only if it must be new footage; otherwise use a user-supplied clip or a still, composited in code | The model cannot place an inset accurately. |
-| A sound effect that is comedic or emphatic (record scratch, ding) | Code, from a user-supplied or generated effect | Models rarely produce it on cue. |
-| Music that is heard in the reference | Never from the reference itself (rights). Use a user-supplied track or `generate_audio` music, mixed in code | Rights and control. |
-| Ambient sound (street, café) | Model native audio if the shot has it; otherwise a bed in the edit | Native ambience is free with the take. |
+| A sound effect that is comedic or emphatic (record scratch, ding) | Code, from a user-supplied effect or one synthesized in the sandbox with sox (a sine ding, a filtered-noise whoosh) | Models rarely produce it on cue, and the server's audio tool makes speech only. |
+| Music that is heard in the reference | Never from the reference itself (rights). A user-supplied licensed track, mixed in code. The server has no music generation, so without a track the ad runs on native audio and effects, and the plan says so | Rights and control. |
+| Ambient sound (street, café) | Model native audio if the shot has it; otherwise a user-supplied bed, or room tone synthesized with sox, in the edit | Native ambience is free with the take. |
 | Speech that is slightly off in a good take | Trim around it, cut to a beat, cover with an effect | Cheaper than a retry; see [regeneration](regeneration.md). |
 | A shot that needs the exact product | Give the model the product image as a reference input where the model supports it; verify against the image; overlay a packshot in the edit if the label is wrong | Identity inputs help but do not guarantee text on packaging. |
 

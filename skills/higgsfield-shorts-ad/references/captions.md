@@ -31,6 +31,8 @@ Otherwise, run Whisper for word timings, write an SRT from the aligned intended 
 
 The reference's look is described in the analysis brief under "On-screen text and captions" and is the default.
 
-## Language
+## Language and fonts
 
-Captions are in the dialogue language unless the user asked for another. A translated caption is still aligned to the spoken line's clock. Check glyph coverage for the font before burning; an empty caption is a font failure, not a timing failure.
+Captions are in the dialogue language unless the user asked for another. A translated caption is still aligned to the spoken line's clock. "Caps" in the looks table applies only to scripts that have case.
+
+The sandbox's preinstalled caption fonts (Metropolis, Montserrat) cover Latin only. For Korean, Japanese, Chinese, Cyrillic, Arabic, Thai, Devanagari and every other script, fetch a font under the SIL Open Font License in the same sandbox command, before burning: Noto Sans for that script, from the google/fonts repository on GitHub (the `ofl/<family>` directory, for example `ofl/notosanskr`) or from the Noto releases. Put it in a `fonts` directory, pass `fontsdir=fonts` to the subtitles filter together with `force_style='FontName=<family name>'`, and check that the download is a font (a few megabytes, not an error page) before using it. The bundled `subtitles` workflow has its own font option; give it the same file. An empty or boxed caption is a font failure, not a timing failure.
