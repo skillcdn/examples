@@ -43,8 +43,12 @@ The reference video itself is never a build material. No frame, clip, still or s
 
 ## Sandbox conventions
 
-- One `sandbox_exec` call does the whole assembly: download takes, cut, filter, mix, mux, probe, upload. The sandbox is discarded between calls.
-- Reserve the output with `media_upload` before the command, and end the command with the PUT of the finished file. Call `media_confirm` only after HTTP 200.
+- One self-contained script does the whole assembly: download takes, fonts and assets, cut, filter, mix, mux, probe, upload. Run it with `background: true` and poll its log; an encode of a whole ad plus its uploads exceeds the foreground transport timeout. The sandbox is discarded between calls and recycled during long waits, so the script fetches everything it needs itself.
+- Reserve the output with `media_upload` before the script, and end the script with the PUT of the finished file, with the `Content-Type` header the upload result names. Call `media_confirm` only after HTTP 200.
+- Prepare the assembly while the last take renders: rasterize the logo, synthesize the effects with sox, fetch the font, write and syntax-check the script. The assembly then starts within a minute of the last verdict.
+- A take generated with audio off has no audio stream at all, not a silent one. Give it a room-tone or silent track (`anullsrc`, or sox noise low-passed) before concatenation, or the concat drops audio.
+- Text is drawn from files with `drawtext` and `expansion=none`, which avoids escaping punctuation in non-Latin text; `amix` with `normalize=0` keeps the levels that were set; a dip to white is two fades around a cut, which the concat demuxer accepts.
+- Verify beyond `ffprobe`: per-second loudness of the master (speech where it should be, nowhere else), a 1 fps contact sheet, and a strip of frames at every text moment, since the agent cannot play video.
 - Work at the take's native resolution; do not upscale drafts. Output 9:16 H.264 with AAC audio.
 - Keep the caption burn as a separate step on the clean master ([captions](captions.md)), so a caption fix never touches the edit.
 - Fonts for text overlays: use the caption fonts preinstalled in the sandbox or fetch a font the user is licensed to use. Check that the font covers the language's script before rendering.

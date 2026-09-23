@@ -31,6 +31,16 @@ How the Higgsfield tools behaved in real runs of this skill, with the workaround
 - 2026-09-23: `jobs_wait` accepted a single job id from `generate_image` (not from a batch tool) and returned the result URL when the job finished, in two 15-second waits per portrait. The tool text's mention of batch job ids is not a restriction.
 - 2026-09-23: `generate_image` never returned the preset notice that `generate_video` preflights did.
 
+## Takes and assembly
+
+- 2026-09-23: a 4-second Seedance 2.5 take at 480p rendered in about three and a half minutes, a 10-second one in five to eight; `jobs_wait` is capped at 15 seconds, so a five-shot run polled about 75 times. Every charge equalled its preflight.
+- 2026-09-23: a take generated with `generate_audio: false` came back with no audio stream at all. The assembly synthesized room tone for it before the concat.
+- 2026-09-23: the assembly encode (29 seconds of video plus uploads) took about 50 seconds; run as a background script it finished cleanly, where a foreground call would have hit the transport timeout seen in phase 2. The sandbox had been recycled during the last take's wait, so the script re-fetched every input; a self-contained script is the safe shape.
+- 2026-09-23: the bundled `subtitles` workflow accepted the intended lines as a manifest, timed 21 words, and scored similarity 0.75 because of dialect and homophone spellings; the cue starts were within 0.3 seconds of the takes' word timestamps, so the score was ignored. It ships no Korean font (Noto Serif KR was passed in), its clean burner is white only, and its SRT cannot be uploaded (backend whitelist), so the cue list travels in the delivery.
+
 ## Speech-to-text (Whisper in the sandbox)
+
+- 2026-09-23: Whisper normalized a dialect pronoun to the standard one and wrote a two-word tagline as one word in both takes of the same shot; the medium model did the same. The user heard the first take as unnatural; the retry, prompted with "natural standard pronunciation", was chosen after a 10-millisecond RMS envelope showed a slightly longer closure gap inside the disputed word and a decode with the intended line as `initial_prompt` read it as two words.
+- 2026-09-23: on a sighing shot with no dialogue, Whisper with voice detection returned a low-confidence phrase on a stretch 13 dB under real speech, and without voice detection returned stock Korean phrases. Loudness and no-speech probability, not the transcript, settled it as silence.
 
 - 2026-09-23: Whisper `small` heard a Korean line as "니가 엄마 손재 기다린다" where the burned caption read "느그 엄마 손주 기다린다", and missed two on-screen lines that were never spoken. Frames are the ground truth for text; the transcript is the clock.

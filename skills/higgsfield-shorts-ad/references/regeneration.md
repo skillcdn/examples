@@ -9,11 +9,16 @@ Judge each take right after it is generated, from watching it and from its Whisp
 | Verdict | Definition | Action |
 |---|---|---|
 | Clear | The transcript matches the intended line, or differs only in filler, contraction or punctuation. Meaning identical, no wrong word a listener would notice. | Accept. |
-| Close enough | One word differs but the meaning is the same and the brand or product name is right. Delivery is natural. | Accept. The caption still shows the intended line. |
-| Ambiguous | A wrong or missing word changes the meaning, the brand or product name is wrong or slurred, the line is cut off, mumbled, overlapped by another voice, or in the wrong language. | Fix in code if possible, otherwise regenerate. |
-| Broken | No speech where there should be, or speech where there should be none. | Regenerate. |
+| Close enough | One ordinary word differs but the meaning is the same, and the brand name and every signature phrase are exact. Delivery is natural. | Accept. The caption still shows the intended line. |
+| Ambiguous | A wrong or missing word changes the meaning; the brand or product name, or a signature phrase such as the tagline, is wrong, slurred or a near-homophone; the line is cut off, mumbled, overlapped by another voice, or in the wrong language. | Fix in code if possible, otherwise regenerate. |
+| Broken | No speech where there should be, or speech where there should be none, judged from loudness and Whisper's no-speech probability, not from the transcript alone. | Regenerate. |
 
-Do not chase a perfect match. Two takes with the same meaning are both fine; the credits are better kept for a shot that is actually wrong.
+Do not chase a perfect match. Two takes with the same meaning are both fine; the credits are better kept for a shot that is actually wrong. The exception is the brand's own words: a tagline said almost right is said wrong, because the audience knows it.
+
+## What the transcript cannot decide
+
+- On near-silence, Whisper invents stock phrases. Before calling a silent shot "speech where there should be none", measure: a stretch more than about 12 dB under the take's real speech, with a no-speech probability above 0.5, is silence whatever the transcript says. Frames showing a closed, still mouth confirm it.
+- Whisper normalizes dialect and homophones to standard spellings (a regional "you" becomes the standard one, two words that sound like one are written as one), and the medium model does the same as the small one, so the transcript cannot arbitrate a pronunciation question. Two free checks in the sandbox can: a 10-millisecond RMS envelope over the disputed word, where a closure gap of about 100 milliseconds means two words and its depth and length compare takes; and a second decode with the intended line as Whisper's `initial_prompt`, which shows whether the audio supports the intended reading. When the checks tie, prefer the take made with the explicit pronunciation instruction, and say in the delivery that the machine check is not conclusive.
 
 ## Try code first
 

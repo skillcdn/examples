@@ -28,7 +28,7 @@ curl -f -X PUT -H 'Content-Type: image/png' --upload-file sheet01.png '<upload_u
 
 The `tile` filter needs both dimensions on the sandbox's ffmpeg (`6x0` is rejected, and because the command is one chain, everything after it would be skipped). A 6x6 sheet holds 36 seconds; a longer reference produces `sheet02.png` and so on, looked at as files. The PUT carries the `Content-Type` the `media_upload` result names, because the presigned URL is signed with it.
 
-Look at the contact sheet (by its hosted URL, or downloaded where the client can view images) and at individual frames for cast appearance and on-screen text. Frames are the ground truth for text and look; the scene analysis is the ground truth for structure; the transcript is the ground truth for dialogue.
+Look at the contact sheet (by its hosted URL, or downloaded where the client can view images) and at individual frames for cast appearance and on-screen text. Frames are the ground truth for text, look and structure; the transcript is the ground truth for dialogue; the scene analysis, when it arrives, adds scene boundaries and descriptions to check the shot list against.
 
 The frames, the sheet, the audio and the imported reference are for looking and listening only. None of them is ever passed to a model as a start frame, a reference, a motion source or an audio source, and none appears in the output. The cast section below is the source of the cast list and the portraits ([cast.md](cast.md)); it describes, it never copies.
 

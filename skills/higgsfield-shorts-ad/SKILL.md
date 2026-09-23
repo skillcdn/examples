@@ -5,7 +5,7 @@ license: MIT
 compatibility: Needs the Higgsfield MCP server with video generation, image generation, video analysis, media upload and the cloud sandbox (ffmpeg and Whisper). Works in any agent that can call MCP tools.
 metadata:
   author: skillcdn
-  version: "0.5"
+  version: "0.6"
   tools: higgsfield
 ---
 # Shorts-style AI ad from a reference video
@@ -64,7 +64,7 @@ Produces the **intake record**: the two inputs, and every derived setting with w
 
 Produces the **analysis brief** ([template](references/analysis-brief.md)).
 
-1. Get the reference in: `media_upload_widget` for a local file, `media_import_url` for a link that points at a media file. Start `video_analysis_create` right away with the media id; it runs for a few minutes. A YouTube link feeds only the scene analysis (as `youtube_url`); the sandbox cannot download from YouTube, so frames and transcript need a file or a direct link.
+1. Get the reference in: `media_upload_widget` for a local file, `media_import_url` for a link that points at a media file. Start `video_analysis_create` right away with the media id; it may take minutes or never finish, so it is a supplement to the frames, not something to wait for. A YouTube link feeds only the scene analysis (as `youtube_url`); the sandbox cannot download from YouTube, so frames and transcript need a file or a direct link.
 2. In the same waiting time, run the reference through the sandbox in one `sandbox_exec` call started with `background: true`: probe duration and frame size, extract one frame per second and a contact sheet, and transcribe the audio with the preinstalled Whisper. The command, and how to poll it, are in the brief template.
 3. From the analysis result, the frames and the transcript, fill in the brief: mood and pacing, shot list with timings, dialogue as spoken, on-screen text and captions with their timing and look, cast appearance, sound design (music, effects, silence), and what is a cut versus a camera move.
 4. Mark each element of the reference with its build route: **generate** (a take from the video model), **edit** (code in the sandbox), or **drop**. The rules are in [editing-decisions.md](references/editing-decisions.md).
@@ -111,8 +111,8 @@ Produces one **approved first frame** per shot ([cast.md](references/cast.md)).
 
 Produces one **take** per shot and the running **budget ledger**.
 
-1. Generate shot 1 only: `count` 1, `use_unlim` set explicitly, the approved first frame as `start_image`, the portrait in the identity role too where the model has one, native audio on, and the intended line quoted verbatim in the prompt with an explicit instruction that the character speaks exactly these words in the dialogue language. Never use the batch tool. A take takes minutes: poll `jobs_wait` until it is terminal.
-2. Review the take before anything else: watch it (or its frames from the sandbox), transcribe it with Whisper, compare the transcript with the intended line, and give it a verdict by [regeneration.md](references/regeneration.md): **accept**, **accept with edit** (fixable in code), or **regenerate**.
+1. Generate shot 1 only: `count` 1, `use_unlim` set explicitly, the approved first frame as `start_image`, the portrait in the identity role too where the model has one, native audio on, and the intended line quoted verbatim in the prompt with an explicit instruction that the character speaks exactly these words in the dialogue language, with natural standard pronunciation, and nothing else. Never use the batch tool. A take takes minutes: poll `jobs_wait` until it is terminal, and use the wait in the sandbox to warm up Whisper, fetch the caption font and prepare the assembly ([editing-decisions.md](references/editing-decisions.md)).
+2. Review the take before anything else, from a 2 fps contact sheet, the Whisper transcript with word timestamps and a per-second loudness curve, since an agent cannot play video: same person, clothing and setting as the first frame; the mouth moving in the speech window and still outside it; the planned action and expression; no text or artifacts; speech where it should be and nowhere else. Compare the transcript with the intended line and give the take a verdict by [regeneration.md](references/regeneration.md): **accept**, **accept with edit** (fixable in code), or **regenerate**.
 3. Record the take in the ledger: shot, model, parameters, credits charged, verdict. Keep a one-line report per take (its link, what it says against what it should say, the verdict) for the clean-master checkpoint.
 4. Act on the verdict without stopping: accept, or regenerate once from the reserve as phase 10 says, then generate the next shot. Stop only when a shot would need a second retry, or when the ledger reaches the accepted estimate; then ask.
 
@@ -120,7 +120,7 @@ Produces one **take** per shot and the running **budget ledger**.
 
 Produces the **clean master**.
 
-1. Download every accepted take into one `sandbox_exec` command, cut and concatenate in shot order, and apply the edit plan: inserts, picture-in-picture, frames, borders, text, logo, end card, sound effects, music bed with ducking under speech. Reserve the output with `media_upload` before the command and PUT the file at the end of the same command; the sandbox is discarded between calls.
+1. Download every accepted take in one self-contained script run with `sandbox_exec` in the background, cut and concatenate in shot order, and apply the edit plan: inserts, picture-in-picture, frames, borders, text, logo, end card, sound effects, music bed with ducking under speech. Reserve the output with `media_upload` before the script and PUT the file at the end of the same script; the sandbox is discarded between calls. A take made without audio has no audio stream; give it one before concatenation.
 2. Never prompt the video model for an overlay. Captions, frames, text, logos and end cards are always code ([editing-decisions.md](references/editing-decisions.md)).
 3. Verify the master with `ffprobe`: duration, one video stream, one audio stream, 9:16. Confirm the upload with `media_confirm`.
 4. Checkpoint: the clean master's link, the one-line report of every take (link, what it says, verdict, retries), and one line on what was added and dropped. "OK" continues to captions; the user may also ask for a retry of any shot here, re-quoted if it exceeds the budget.
