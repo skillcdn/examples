@@ -3,6 +3,11 @@ name: SkillCDN examples
 description: Example skills and document sets, served live through SkillCDN. Use to run a skill that drives a given tool, starting with Higgsfield for short-form AI ad video, or to see how such a skill is written.
 documents:
   - docs
+language: en
+translations:
+  ko:
+    name: SkillCDN 예제
+    description: SkillCDN을 통해 실시간으로 제공되는 예제 스킬과 문서 모음입니다. 특정 도구를 다루는 스킬을 실행해 보거나(첫 예제는 Higgsfield로 만드는 숏폼 AI 광고 영상입니다), 그런 스킬이 어떻게 쓰이는지 볼 때 쓰세요.
 license: MIT
 metadata:
   author: skillcdn

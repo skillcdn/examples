@@ -11,6 +11,7 @@ This page adds what this repository asks on top of the spec, and how to write th
 - A skill does not restate the repository rules. They are the body of `SKILLCDN.md`, and SkillCDN hands them to the agent with every skill. A skill's own hard rules cover only what is specific to it.
 - No rendered media, screenshots or generated output. Examples ship text. Data an agent must read is small JSON in `assets/`.
 - `license` is `MIT` unless stated. `metadata.tools` names the tool family. Quote a `version` so it stays text, and keep `metadata` flat.
+- What SkillCDN adds to the front-matter lives under `skillcdn`: `include` lists the references every run needs, relative to the skill directory, so that `get` returns them with the skill (the rest stay linked from the phase that needs them); `translations` carries a `title` and a `description` per language tag for people who read the page in that language. The `name` and the `description` stay in English, the language the manifest declares; agents read those.
 
 ## Body skeleton
 

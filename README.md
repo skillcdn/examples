@@ -56,6 +56,8 @@ The process, for a skill, a document set or a new tool family, is in [contributi
 node scripts/check.mjs    # validates the manifest, front-matter, catalogs, links and text; needs Node.js 24, no install
 ```
 
+From a checkout of SkillCDN, `pnpm --filter @skillcdn/server run start check <path to this repository>` reads the repository with the indexer itself and prints what an agent is told.
+
 ## License
 
 The content of this repository is under the [MIT License](LICENSE.md). "SkillCDN" is a trademark of KDX Labs Corp. The tools the skills drive are third-party products with their own terms.

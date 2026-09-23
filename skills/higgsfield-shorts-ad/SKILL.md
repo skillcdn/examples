@@ -7,6 +7,20 @@ metadata:
   author: skillcdn
   version: "0.7"
   tools: higgsfield
+skillcdn:
+  include:
+    - references/tool-notes.md
+    - references/design.md
+    - references/analysis-brief.md
+    - references/editing-decisions.md
+    - references/cast.md
+    - references/model-selection.md
+    - references/regeneration.md
+    - references/captions.md
+  translations:
+    ko:
+      title: 레퍼런스 영상으로 만드는 숏폼 AI 광고
+      description: 레퍼런스 영상 하나와 제품 링크만으로 Higgsfield에서 세로형 숏폼 AI 광고·프로모 영상을 만듭니다. 레퍼런스가 왜 통하는지(후킹, 감정선, 호흡, 마무리)를 배워 제품을 위한 새 광고를 쓰며, 레퍼런스 자체는 절대 모델에 넣지 않습니다. 언어·길이·룩·브랜드 타이포그래피를 스스로 정하고, 승인받은 인물 초상과 컷별 첫 프레임을 만든 뒤 최신 Kling 또는 Seedance 모델을 크레딧 견적과 함께 추천하고, 초안 테이크를 한 번에 하나씩 생성하며, 자막·문구·엔드 카드는 코드로 넣습니다. 제품·브랜드·웹사이트를 위한 프로모/광고 숏폼(TikTok, Reels, Shorts)을 레퍼런스 숏폼의 느낌으로, 크레딧을 아끼면서 전문 지식 없이 만들고 싶을 때 쓰세요.
 ---
 # Shorts-style AI ad from a reference video
 

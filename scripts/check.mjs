@@ -2,15 +2,19 @@
 //
 // The format is specified in the SkillCDN repository (docs/specs/skill-repo.md). This script enforces its
 // required points as far as they are mechanical:
-//   1. The root has a SKILLCDN.md whose front-matter has a `description`, and whose `documents` entries are
-//      directories inside the repository.
+//   1. The root has a SKILLCDN.md whose front-matter has a `description`, whose `documents` entries are
+//      directories inside the repository, and whose `language` and `translations` are well formed.
 //   2. Every SKILL.md has front-matter with a valid `name` and `description`, the name equals its directory,
-//      and the body starts with a level-one heading.
+//      the body starts with a level-one heading, and what SkillCDN adds under `skillcdn` (the files that
+//      come with the skill, the translations) points at what exists and is well formed.
 //   3. A skill links only inside its own directory (it may be mounted alone). A served document links only
 //      to what is served: skills, declared document directories, the manifest.
 //   4. No rendered media or binaries; JSON assets parse; text carries no control or invisible characters.
 //   5. Every skill and every document set is listed in its catalog README and in the root README.
 // Hidden entries (any path segment starting with a dot) are ignored, as the indexer ignores them.
+//
+// The indexer's own verdict, with the same parser and the same limits, comes from the `check` role of the
+// SkillCDN image: from a checkout of SkillCDN, `pnpm --filter @skillcdn/server run start check <this dir>`.
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
@@ -38,12 +42,16 @@ const exists = (path) => {
 };
 
 const NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+const LANGUAGE_TAG_RE = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8}){0,3}$/;
 const FRONT_MATTER_MAX = 16_384;
 const MANIFEST_MAX = 262_144;
 const DESCRIPTION_MAX = 1024;
 const SKILL_NAME_MAX = 64;
+const SKILL_TITLE_MAX = 200;
 const REPO_NAME_MAX = 100;
 const DOCUMENTS_MAX = 20;
+const INCLUDE_MAX = 20;
+const TRANSLATIONS_MAX = 32;
 // C0 and C1 controls (except tab, LF, CR), soft hyphen, zero-width and directional marks, BOM.
 // Built from code points on purpose: some editing tools decode escape sequences in source files, and an
 // invisible character in this file is exactly what the check exists to catch.
@@ -55,6 +63,7 @@ const INVISIBLE_RE = new RegExp(
 );
 const TEXT_RE = /\.(md|markdown|mdx|json|ya?ml|mjs|txt)$/i;
 const MARKDOWN_RE = /\.(md|markdown|mdx)$/i;
+const INCLUDABLE_RE = /\.(md|markdown|mdx|json)$/i;
 const MEDIA_RE = /\.(mp4|mov|mkv|webm|wav|mp3|m4a|aac|flac|png|jpe?g|gif|webp)$/i;
 const SECRET_RE = /(^|\/)(\.env(\..*)?|.*\.(pem|key|p12|pfx))$/;
 
@@ -81,9 +90,8 @@ function unquote(value) {
 }
 
 // The indexer reads front-matter with a real YAML parser. A plain (unquoted) scalar that YAML cannot parse
-// does not fail loudly there: the whole SKILL.md is dropped and the mount reports no skill. The two ways a
-// prose value breaks YAML are a colon followed by a space and a space followed by a hash; a value that
-// starts with an indicator character is the third.
+// is reported and the skill is not served. The two ways a prose value breaks YAML are a colon followed by
+// a space and a space followed by a hash; a value that starts with an indicator character is the third.
 function checkPlainScalar(file, key, raw) {
   const v = raw.trim();
   if (!v) return;
@@ -93,13 +101,13 @@ function checkPlainScalar(file, key, raw) {
     return;
   }
   if (/[[\]{}&*!|>%@`]/.test(q)) fail(file, `${key}: a value starting with "${q}" must be quoted`);
-  if (v.includes(": ") || v.endsWith(":")) fail(file, `${key}: a plain value cannot contain ": " (rephrase or quote it); the indexer would drop the file`);
-  if (v.includes(" #")) fail(file, `${key}: a plain value cannot contain " #" (quote it); the indexer would drop the file`);
+  if (v.includes(": ") || v.endsWith(":")) fail(file, `${key}: a plain value cannot contain ": " (rephrase or quote it); the indexer would skip the file and say so`);
+  if (v.includes(" #")) fail(file, `${key}: a plain value cannot contain " #" (quote it); YAML reads the rest of the line as a comment`);
 }
 
-// Minimal front-matter reader: top-level `key: value`, one level of nested mapping, and a sequence of
-// scalars. This is deliberately not a YAML parser; manifests here keep their front-matter simple enough
-// for one, and the indexer's failsafe-schema parser accepts the same subset.
+// Minimal front-matter reader: nested mappings by indentation, and sequences of scalars. This is
+// deliberately not a YAML parser; manifests here keep their front-matter simple enough for one, and the
+// indexer's failsafe-schema parser accepts the same subset. Returns null after reporting a line it cannot read.
 function parseFrontMatter(text, file) {
   if (!text.startsWith("---\n")) {
     fail(file, "no front-matter (file must start with ---)");
@@ -112,58 +120,113 @@ function parseFrontMatter(text, file) {
   }
   const block = text.slice(4, end);
   if (block.length > FRONT_MATTER_MAX) fail(file, `front-matter longer than ${FRONT_MATTER_MAX} characters`);
-  const fields = {};
-  let current = null;
-  for (const raw of block.split("\n")) {
-    if (!raw.trim() || raw.trimStart().startsWith("#")) continue;
-    if (/^\s/.test(raw)) {
-      const item = /^\s+-\s+(.*)$/.exec(raw);
-      const pair = /^\s+([^:]+):\s*(.*)$/.exec(raw);
-      if (!current || (!item && !pair)) {
-        fail(file, `cannot read front-matter line: ${raw.trim()}`);
+  const lines = block
+    .split("\n")
+    .filter((raw) => raw.trim() && !raw.trimStart().startsWith("#"))
+    .map((raw) => ({ indent: raw.length - raw.trimStart().length, text: raw.trim() }));
+  let index = 0;
+  let broken = false;
+  const cannotRead = (line) => {
+    if (!broken) fail(file, `cannot read front-matter line: ${line.text}`);
+    broken = true;
+  };
+
+  // Reads the block whose lines sit at `indent`, a sequence of scalars or a mapping, stopping at the
+  // first line that sits further left.
+  function readBlock(indent, path) {
+    const first = lines[index];
+    if (first.text.startsWith("- ")) {
+      const items = [];
+      while (index < lines.length && lines[index].indent === indent) {
+        const line = lines[index];
+        if (!line.text.startsWith("- ")) {
+          cannotRead(line);
+          return null;
+        }
+        const raw = line.text.slice(2);
+        checkPlainScalar(file, `${path} item`, raw);
+        items.push(unquote(raw));
+        index += 1;
+      }
+      if (index < lines.length && lines[index].indent > indent) {
+        cannotRead(lines[index]);
         return null;
       }
-      const value = fields[current];
-      if (item) {
-        checkPlainScalar(file, `${current} item`, item[1]);
-        if (Array.isArray(value)) value.push(unquote(item[1]));
-        else if (Object.keys(value).length === 0) fields[current] = [unquote(item[1])];
-        else {
-          fail(file, `mixed mapping and sequence under ${current}`);
-          return null;
-        }
-      } else {
-        if (Array.isArray(value)) {
-          fail(file, `mixed mapping and sequence under ${current}`);
-          return null;
-        }
-        checkPlainScalar(file, `${current}.${pair[1].trim()}`, pair[2]);
-        value[pair[1].trim()] = unquote(pair[2]);
-      }
-      continue;
+      return items;
     }
-    const m = /^([A-Za-z][\w-]*):\s*(.*)$/.exec(raw);
-    if (!m) {
-      fail(file, `cannot read front-matter line: ${raw.trim()}`);
+    const mapping = {};
+    while (index < lines.length && lines[index].indent === indent) {
+      const line = lines[index];
+      const m = /^([A-Za-z][\w-]*):(?:\s+(.*))?$/.exec(line.text);
+      if (!m) {
+        cannotRead(line);
+        return null;
+      }
+      const [, key, value] = m;
+      const keyPath = path ? `${path}.${key}` : key;
+      if (key in mapping) fail(file, `duplicate front-matter key: ${keyPath}`);
+      index += 1;
+      if (value !== undefined && value !== "") {
+        checkPlainScalar(file, keyPath, value);
+        mapping[key] = unquote(value);
+      } else if (index < lines.length && lines[index].indent > indent) {
+        const nested = readBlock(lines[index].indent, keyPath);
+        if (nested === null) return null;
+        mapping[key] = nested;
+      } else {
+        mapping[key] = "";
+      }
+    }
+    if (index < lines.length && lines[index].indent > indent) {
+      cannotRead(lines[index]);
       return null;
     }
-    const [, key, value] = m;
-    if (key in fields) fail(file, `duplicate front-matter key: ${key}`);
-    if (value === "") {
-      fields[key] = {};
-      current = key;
-    } else {
-      checkPlainScalar(file, key, value);
-      fields[key] = unquote(value);
-      current = null;
-    }
+    return mapping;
   }
-  return { fields, body: text.slice(end + 4) };
+
+  if (lines.length === 0) return { fields: {}, body: text.slice(end + 4) };
+  if (lines[0].indent !== 0) {
+    cannotRead(lines[0]);
+    return null;
+  }
+  const fields = readBlock(0, "");
+  return fields === null ? null : { fields, body: text.slice(end + 4) };
 }
+
+const isMapping = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
 
 function checkDescription(file, description) {
   if (typeof description !== "string" || !description) fail(file, "front-matter needs a `description`");
   else if (description.length > DESCRIPTION_MAX) fail(file, `description longer than ${DESCRIPTION_MAX} characters`);
+}
+
+// `translations`: a language tag to the fields people see in that language. `rules` says which fields a
+// translation may carry and how long each may be.
+function checkTranslations(file, value, rules) {
+  if (value === undefined) return;
+  if (!isMapping(value)) {
+    fail(file, "`translations` must be a mapping from language tags");
+    return;
+  }
+  const tags = Object.keys(value);
+  if (tags.length > TRANSLATIONS_MAX) fail(file, `more than ${TRANSLATIONS_MAX} translations`);
+  for (const tag of tags) {
+    if (!LANGUAGE_TAG_RE.test(tag)) fail(file, `translations: "${tag}" is not a language tag such as ko or pt-BR`);
+    const entry = value[tag];
+    if (!isMapping(entry)) {
+      fail(file, `translations.${tag}: must be a mapping with ${Object.keys(rules).join(" and ")}`);
+      continue;
+    }
+    let usable = 0;
+    for (const [field, max] of Object.entries(rules)) {
+      const text = entry[field];
+      if (text === undefined) continue;
+      if (typeof text !== "string" || !text) fail(file, `translations.${tag}.${field}: must be text`);
+      else if (text.length > max) fail(file, `translations.${tag}.${field}: longer than ${max} characters`);
+      else usable += 1;
+    }
+    if (usable === 0) fail(file, `translations.${tag}: translates nothing; expected ${Object.keys(rules).join(" or ")}`);
+  }
 }
 
 // The repository manifest. Returns the absolute paths of the declared document directories.
@@ -179,6 +242,8 @@ function checkRepoManifest(file) {
   const { fields, body } = parsed;
   if (typeof fields.name === "string" && fields.name.length > REPO_NAME_MAX) fail(file, `name longer than ${REPO_NAME_MAX} characters`);
   checkDescription(file, fields.description);
+  if (fields.language !== undefined && !LANGUAGE_TAG_RE.test(fields.language)) fail(file, `language: "${fields.language}" is not a language tag such as en or pt-BR`);
+  checkTranslations(file, fields.translations, { name: REPO_NAME_MAX, description: DESCRIPTION_MAX });
   if (!/^\s*# /.test(body)) fail(file, "body should start with a level-one heading: the rules for every skill");
   const documents = fields.documents ?? [];
   if (!Array.isArray(documents)) {
@@ -203,6 +268,33 @@ function checkRepoManifest(file) {
   return dirs;
 }
 
+// What SkillCDN adds under `skillcdn`: the files that come with the skill, and the translations.
+function checkSkillcdnBlock(file, value) {
+  if (value === undefined) return;
+  if (!isMapping(value)) {
+    fail(file, "`skillcdn` must be a mapping");
+    return;
+  }
+  const dir = dirname(file);
+  const include = value.include ?? [];
+  if (!Array.isArray(include)) {
+    fail(file, "`skillcdn.include` must be a sequence of file paths");
+  } else {
+    if (include.length > INCLUDE_MAX) fail(file, `skillcdn.include: more than ${INCLUDE_MAX} files`);
+    for (const entry of include) {
+      const segments = entry.split("/");
+      if (entry.startsWith("/") || entry.includes("\\") || segments.some((s) => s === "" || s === "." || s === ".." || s.startsWith("."))) {
+        fail(file, `skillcdn.include: not a plain relative path inside the skill: ${entry}`);
+      } else if (!INCLUDABLE_RE.test(entry) || /(^|\/)SKILL\.md$/.test(entry)) {
+        fail(file, `skillcdn.include: only Markdown or JSON files of the skill can come with it: ${entry}`);
+      } else if (!exists(resolve(dir, entry))) {
+        fail(file, `skillcdn.include: no such file: ${entry}`);
+      }
+    }
+  }
+  checkTranslations(file, value.translations, { title: SKILL_TITLE_MAX, description: DESCRIPTION_MAX });
+}
+
 function checkSkill(file, text) {
   if (text.length > MANIFEST_MAX) fail(file, `manifest longer than ${MANIFEST_MAX} characters`);
   const parsed = parseFrontMatter(text, file);
@@ -218,6 +310,7 @@ function checkSkill(file, text) {
     if (dir !== root && name !== dir.split(sep).pop()) fail(file, `name "${name}" differs from its directory`);
   }
   checkDescription(file, fields.description);
+  checkSkillcdnBlock(file, fields.skillcdn);
   if (!/^\s*# /.test(body)) fail(file, "body should start with a level-one heading");
 }
 

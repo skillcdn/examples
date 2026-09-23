@@ -6,12 +6,13 @@ This repository grows one example at a time: a skill that drives a tool, or a do
 
 1. Read [skill-authoring.md](skill-authoring.md) and the rules in [`SKILLCDN.md`](../SKILLCDN.md). Open an existing skill (start with `skills/higgsfield-shorts-ad/`) and copy its skeleton.
 2. Create `skills/<name>/SKILL.md`. The directory name is the skill name. Prefix it with the tool family (`higgsfield-`, `github-`, ...).
-3. Put anything longer than a paragraph in `references/`, and link each reference from the phase that uses it. Data files go in `assets/`. Never link outside the skill directory.
+3. Put anything longer than a paragraph in `references/`, and link each reference from the phase that uses it. List the references every run needs in `skillcdn.include` in the front-matter, so that they arrive with the skill. Data files go in `assets/`. Never link outside the skill directory.
 4. Do not restate the repository rules; they arrive with the skill. Name the tools the skill requires in "Requirements", with what to do when one is missing.
 5. Add one row to the table in `skills/README.md` and one to the catalog in the root `README.md`.
-6. Run `node scripts/check.mjs`. Fix what it reports.
-7. Try the skill end to end with an agent that has the required tools, from a fresh session, following only what the files say. Whatever you had to explain in chat is missing from the skill: add it.
-8. Commit as `feat(skills): add <name>`.
+6. Run `node scripts/check.mjs`. Fix what it reports. With a checkout of SkillCDN at hand, `pnpm --filter @skillcdn/server run start check <path to this repository>` shows what an agent would get, with the indexer's own parser.
+7. Add a `translations` entry for each language you can write, under `skillcdn` in the skill and at the top level of `SKILLCDN.md`, so that people who read the page in that language see what the skill is.
+8. Try the skill end to end with an agent that has the required tools, from a fresh session, following only what the files say. Whatever you had to explain in chat is missing from the skill: add it.
+9. Commit as `feat(skills): add <name>`.
 
 ## A new tool family
 
