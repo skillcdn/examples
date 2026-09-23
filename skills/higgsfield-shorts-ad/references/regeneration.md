@@ -36,9 +36,17 @@ If none of these keeps the meaning and the delivery natural, regenerate.
 - Same model, same tier, same duration, same aspect ratio. Regeneration is not the moment to upgrade quality.
 - Put the intended line in the prompt verbatim, in quotes, and state explicitly that the character says exactly these words, in which language, and nothing else. Keep the visual prompt unchanged so the take still cuts with its neighbors.
 - Aim the retry at the word that failed. When the user rejects a take, quote their complaint word for word and check that word in the review; a retry that fixes a different word is a wasted take.
-- Respell the failed word in the prompt the way it should sound, in the language's own script (Korean: the standard pronunciation written in Hangul, so "적혔다" is prompted as "저켰다"; English: hyphenated syllables). The intended line and the caption keep the correct spelling; only the prompt changes. This is the dictionary trick of text-to-speech tools, and the video model reads the prompt the same way.
-- If the respelled word fails too, change the word: a synonym without the difficult sound, chosen with the user, is cheaper than a third take.
-- Keep the conditions that published prompting guides agree on for native dialogue: five to ten words per line, moderate speed, the face front-on or three-quarter, no head turn while speaking, one language per line. A line that breaks these is rewritten before it is retried.
+- Fix the word as "Pronunciation" below says, before spending the take.
+
+## Pronunciation
+
+Video models with native dialogue have no pronunciation dictionary, and the transcript often cannot even show the fault. This is the procedure; do not research it again.
+
+1. **Write the line so it can be said.** Five to ten words per line, moderate speed, one language per line, the face front-on or three-quarter with the mouth unobstructed, no head turn while speaking. Put the line in quotes and say that the character speaks exactly these words in that language with natural standard pronunciation and nothing else. Longer speeches are split across shots.
+2. **Respell a word the model gets wrong, in the prompt only.** Write it the way it should sound, in the language's own script: for Korean, the standard pronunciation in Hangul (an aspirated cluster such as ㄱ, ㄷ, ㅂ or ㅈ before ㅎ becomes ㅋ, ㅌ, ㅍ or ㅊ, so "적혔다" is prompted as "저켰다"); for English, hyphenated syllables with the stressed one in capitals. The intended line and the caption keep the correct spelling. This is the dictionary trick of text-to-speech tools, and it is the first retry.
+3. **Change the word if the respelling fails.** A synonym without the difficult sound, chosen with the user, is cheaper than another take.
+4. **Check the word, not the sentence.** Whisper normalizes spellings, so decode once plainly and once with the intended line as `initial_prompt`, listen to the envelope of that syllable (an aspirated consonant shows a burst and a noisy onset before the vowel; a dropped one does not), and compare with the rejected take.
+5. **Record the outcome** in tool-notes.md: the word, the respelling, whether it worked, the model and the date.
 - Start from the same approved first frame and pass the same portrait as identity input, exactly as in the first take ([cast](cast.md)), so the cast and the composition stay consistent. Nothing from the reference video, ever.
 - Generate one take. Judge it by the same table.
 
