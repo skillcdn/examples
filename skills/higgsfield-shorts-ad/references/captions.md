@@ -12,7 +12,7 @@ Four steps, in one `sandbox_exec` call on the clean master, in this order. Skipp
 
 1. **Transcribe** the clean master's audio with Whisper, word timestamps on, voice activity detection on, language set to the dialogue language. On a mixed track (music under speech), band-pass the voice range first or transcribe the pre-mix speech stems if the edit kept them.
 2. **Align** each intended line to the transcript: match line by line in order, take the first and last word times of the matched span as the cue window, then split the line into cues of at most five words or 32 characters, distributing the window by word count. Report a similarity score per line; below 0.9, look at the line by hand before burning.
-3. **Burn** in the chosen look. Bottom of frame, inside platform safe zones (portrait: bottom 17 percent of height, 11 percent margins on the sides), one or two lines, never over a face. No animation, no emoji, no karaoke highlighting.
+3. **Burn** in the reference's look. Position follows the reference too, when its captions sit inside the platform safe zones and off faces (top of frame or beside the speaker are common); otherwise bottom of frame. Safe zones for portrait: the top 12 percent and the bottom 17 percent of the height are kept for overlays only when the reference uses them, and 11 percent margins on the sides always. One or two lines, never over a face. No animation, no emoji, no karaoke highlighting.
 4. **Verify**: output duration equals input within one second, audio stream intact, every intended word present in the cue file, two frames at cue midpoints extracted and inspected.
 
 ## Using the bundled subtitles workflow

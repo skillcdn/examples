@@ -10,7 +10,7 @@ metadata:
 ---
 # Shorts-style AI ad from a reference video
 
-From one reference video and one product (a link is enough), this skill produces a vertical short-form ad: a clean master, a captioned master, and a ledger of what it cost. The user needs to know nothing about AI or advertising: everything beyond those two inputs is derived from the reference and the product page, shown in plain words, and changed when the user asks. The reference is studied, never reused: no frame, clip or sound of it enters a generation or the output. The cast is generated from portraits the user approves. Video comes from the latest Kling or Seedance model on Higgsfield, one draft-quality take at a time, and every spoken word is produced by the video model itself. Everything that can be done with code (cuts, captions, frames, text, sound effects, music) is done with code in the sandbox, not prompted into the video model.
+From one reference video and one product (a link is enough), this skill produces a vertical short-form ad: a clean master, a captioned master, and a ledger of what it cost. The user needs to know nothing about AI or advertising: everything beyond those two inputs is derived from the reference and the product page, shown in plain words, and changed when the user asks. The reference is studied, never reused: no frame, clip, sound or person of it enters a generation or the output. The cast is new: generated portraits the user approves, or, when the plan casts someone the product's own site presents, that site's own photo. Video comes from the latest Kling or Seedance model on Higgsfield, one draft-quality take at a time, and every spoken word is produced by the video model itself. Everything that can be done with code (cuts, captions, frames, text, sound effects, music) is done with code in the sandbox, not prompted into the video model.
 
 This skill is the whole workflow. Do not switch to one of Higgsfield's bundled ad, UGC, character or Marketing Studio workflows, even when the server recommends one; the only bundled workflow used here is `subtitles`, in phase 8.
 
@@ -37,7 +37,7 @@ All of these come from the Higgsfield MCP server. Check that they are callable b
 | `jobs_wait`, `show_generation_by_ids` | Collecting a finished take or portrait. |
 | `balance` | Checking credits before the cost is presented. |
 
-Optional: `get_workflow_instructions` with `subtitles` for the bundled caption burner (see [captions](references/captions.md)); outside Higgsfield, any tool that reads a web page, used for the product page's text. No text-to-speech tool is used: every line is spoken by the video model. In a client without the upload widget, everything comes in as links.
+Optional: `get_workflow_instructions` with `subtitles` for the bundled caption burner (see [captions](references/captions.md)); outside Higgsfield, any tool that reads a web page, used for the product page's text. No text-to-speech tool is used: every line is spoken by the video model. In a client without the upload widget, everything comes in as links. How these tools behaved in real runs, with the workarounds, is in [tool-notes.md](references/tool-notes.md); read it before phase 2.
 
 ## Inputs
 
@@ -56,8 +56,8 @@ Each phase produces a named artifact. Phases stop only at the checkpoints listed
 Produces the **intake record**: the two inputs, and every derived setting with where it came from.
 
 1. If the request names both the reference and the product, ask nothing. Say in one or two lines what happens next (the reference is analyzed, then the plan and its cost are shown) and go on.
-2. If one is missing, ask for that one thing in a short message, as [analysis-brief.md](references/analysis-brief.md) "Intake" shows. Do not list the derived settings as questions. Stop until the user answers.
-3. Read the product as "Product brief" in the same file describes: name, what it is, tagline, the claims it makes, its language, and its images (the logo and one product image), imported for the edit. Only claims the page or the user makes are spoken in the ad. Without a web-reading tool, ask the user for two lines instead.
+2. If one or both are missing, ask for what is missing in a short message, as [analysis-brief.md](references/analysis-brief.md) "Intake" shows. Do not list the derived settings as questions. Stop until the user answers.
+3. Read the product as "Product brief" in the same file describes: name, what it is, tagline, the claims it makes, its language, and its images (the logo, one product image, and the photos of any person the site presents as the brand's own), imported for the edit and for casting. The site's assets are the advertiser's own and may be used as they are or as references. Only claims the page or the user makes are spoken in the ad. Without a web-reading tool, ask the user for two lines instead.
 4. Derive the rest (the inputs table) and record it.
 
 ### Phase 2: Analyze the reference
@@ -75,8 +75,8 @@ Produces the **analysis brief** ([template](references/analysis-brief.md)).
 
 Produces the **cast list**, the **shot list** ([example](assets/shot-list.example.json)) and the **edit plan**.
 
-1. Describe each character of the ad from the brief's cast section, in the reference's spirit but new: apparent age range, build, hair, skin tone, clothing, expression, role. The cast is generated; never a real person from the reference or from the product's site, by likeness or by name. Portraits are made from these descriptions in phase 5 ([cast.md](references/cast.md)).
-2. Rewrite the dialogue for the product, in the dialogue language, keeping the reference's rhythm and structure. Every spoken line gets an **intended line**: the exact words to be said and later captioned. Keep lines short; a model speaks 2 to 3 words per second. Every line, on camera or voice-over, is spoken by the video model in the take; there is no text-to-speech step.
+1. Describe each character of the ad from the brief's cast section, in the reference's spirit but new: apparent age range, build, hair, skin tone, clothing, expression, role. The reference's people are never reused, by likeness or by name. A person the product's own site presents (its founder, its face, a mascot) may be cast when the composition calls for it: their site photo is the identity input, or the portrait is generated from it. Portraits are made in phase 5 ([cast.md](references/cast.md)); whether a site person appears is shown at the plan checkpoint.
+2. Rewrite the dialogue for the product, in the dialogue language, keeping the reference's rhythm and structure. Every spoken line gets an **intended line**: the exact words to be said and later captioned. Keep lines short; a model speaks 2 to 3 words per second. Every line, on camera or voice-over, is spoken by the video model in the take; there is no text-to-speech step. When the reference advertises the same product or the same kind of product, keep its structure but write every line anew, and use its copy only where the product page says the same thing.
 3. Split the ad into shots. One shot is one generation. Merge shots only when the model must carry continuity across them (same character mid-motion); otherwise keep them separate, because separate shots are cheaper to regenerate. The total length matches the reference within the models' duration options.
 4. For each shot record: duration, aspect ratio 9:16, the intended line, which cast member, the visual prompt (which repeats that character's clothing and identifying traits), the product image if the product appears, and native audio on for any shot with a line.
 5. The edit plan lists everything that is done in code after generation: cut order, inserts, frames, text, captions, sound effects, music, the logo, the end card with the product's name or address.
@@ -87,7 +87,7 @@ Produces the **estimate**, the **model choice** and the approved plan ([model-se
 
 1. Find the latest generation of each family with `models_explore` (search `kling`, search `seedance`; type `video`). Pick the newest general video model of each family, not a turbo, edit or legacy variant. Read its parameters, its `aspect_ratios` and its `medias[].roles`.
 2. Lock the lowest tier for each: resolution `480p` where the model offers it; where it does not (Kling exposes quality modes instead), the lowest quality mode, `std`.
-3. Preflight the cost of every shot with `generate_video` and `get_cost: true`, once per family, with the exact parameters that will be used. Find the image model and preflight one portrait per cast member with `generate_image` and `get_cost: true`; for a family whose video model takes only a start frame, also one first frame per shot with a character ([cast.md](references/cast.md)). Nothing is submitted and nothing is charged. Sum per family, add a reserve of one extra take per three shots (rounded up) and one extra portrait per cast member, and read the balance with `balance`.
+3. Preflight the cost with `generate_video` and `get_cost: true`, once per family and per distinct parameter set (duration, tier, audio), with the exact parameters that will be used; a shot that shares the set shares the number. Find the image models and preflight them the same way: the portrait model for one portrait per cast member and, for a family whose video model takes only a start frame, the first-frame model for one frame per shot with a character ([cast.md](references/cast.md)). Nothing is submitted and nothing is charged. Sum per family, add a reserve of one extra take per three shots (rounded up, priced at the most expensive shots) and one extra portrait per cast member, and read the balance with `balance`. What the preflight may answer instead of a number is in [model-selection.md](references/model-selection.md).
 4. Recommend one family, with its reason in one line, as [model-selection.md](references/model-selection.md) says.
 5. Checkpoint, one message in plain words: what the ad will be (length, language, the style in one line), the lines in order with who says them, the cast in one line each, what the edit adds (captions, logo, end card), the derived settings and any decision from phase 2 with a note that each can change, the recommended model with its total including the reserve and the balance, and the other family's total in one line. "OK" proceeds with the recommendation; the user may name the other family or change anything. Stop until they answer. A changed plan is preflighted again. The full brief and shot list are given on request, never by default.
 
@@ -95,7 +95,7 @@ Produces the **estimate**, the **model choice** and the approved plan ([model-se
 
 Produces the **approved portraits** ([cast.md](references/cast.md)).
 
-1. Generate one portrait per cast member, one at a time, at the image model's cheapest setting, `count` 1, `use_unlim` set explicitly. Record each in the ledger.
+1. Generate one portrait per cast member, one at a time, at the image model's cheapest setting, `count` 1, `use_unlim` set explicitly. A character cast from the product site's own photo needs no generated portrait unless the plan wants the photo restyled; then the photo is the image model's reference. Record each generation in the ledger.
 2. Checkpoint: the portraits with their hosted links, one line each on who they are. "OK" approves them all; otherwise the user says what to change for which one, and that portrait is regenerated from the edited description and shown again. One retry per cast member is in the reserve; more needs consent.
 3. The approved portrait's media id or job id goes into the shot list. Where the video model takes only a start frame, the first frame of each shot is made from the portrait right before that shot's take and shown with it.
 
@@ -152,8 +152,8 @@ Hand over, in one message, in plain words:
 2. Every checkpoint stops for the user, skipped only after the user's go-ahead; the cost is confirmed in every mode. No generation before the plan and the cost are approved.
 3. The agent recommends one model family from a side-by-side estimate and the user confirms or picks the other. The latest general model of that family is used, found through the catalog at run time, never a pinned version.
 4. Lowest tier only: `480p` where offered, otherwise the lowest quality mode (`std`); the cheapest setting of the image model. One take per call, one shot at a time, no batch tool, `count` is 1.
-5. The reference video is analyzed only. No frame, clip, still or sound from it is ever passed to an image or video model or copied into the output.
-6. The cast is generated: portraits made with the image tool, approved by the user, passed to the video model as identity. No real person's likeness or name.
+5. The reference video is analyzed only. No frame, clip, still, sound or person from it is ever passed to an image or video model or copied into the output.
+6. The cast is new, never the reference's people by likeness or by name. Characters come from portraits made with the image tool and approved by the user, or from the product site's own photos when the plan casts someone the site presents. The site's assets are the advertiser's and may be used.
 7. Every spoken word is produced by the video model in the take. No text-to-speech, dubbing or voice tools, for on-camera lines or voice-over.
 8. Overlays are code: captions, frames, borders, text, logos, end cards, inserts. Never asked of the video model.
 9. Captions show the intended line. Speech-to-text supplies timing only.
@@ -171,7 +171,7 @@ Hand over, in one message, in plain words:
 | Derived setting | A choice taken from the reference or the product page instead of asked: language, length, caption look, what changes, product images. Shown at the plan checkpoint, changed on request. |
 | Analysis brief | The structured description of the reference from phase 2. |
 | Cast list | One description per character of the ad, from phase 3. |
-| Cast portrait | The generated, approved image of a character; the video model's identity input. |
+| Cast portrait | The approved image of a character, generated or taken from the product site's own photos; the video model's identity input. |
 | First frame | A 9:16 image made from a portrait for a shot, when the video model takes only a start frame. |
 | Shot | One planned segment of the ad. One shot is one generation. |
 | Take | One generated video for a shot. A shot may have several takes; one is accepted. |

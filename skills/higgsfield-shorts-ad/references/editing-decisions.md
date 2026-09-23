@@ -11,7 +11,7 @@ The reference video itself is never a build material. No frame, clip, still or s
 | Captions and subtitles | Must show the intended line exactly; models misspell and drift. |
 | Titles, stickers, prices, calls to action, any on-screen text | Same reason. Text is drawn with fonts, not hallucinated. |
 | Frames, borders, split screens, rounded masks, letterboxing | Geometry is deterministic in ffmpeg. |
-| Logos and product packshots as overlays | The real asset, pixel-exact, from the user's upload. |
+| Logos and product packshots as overlays | The real asset, pixel-exact, from the product's site or the user's upload. |
 | End cards | Static or lightly animated; no reason to generate. |
 | Music bed | Licensed or user-supplied track, mixed with ducking under speech. |
 | Freeze frames, speed ramps, zooms on a still frame | Pure post-production. |

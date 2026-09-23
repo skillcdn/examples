@@ -4,14 +4,16 @@ The artifact of phase 2. Fill every section; write "none" rather than leaving a 
 
 ## Sandbox pass
 
-Run in one `sandbox_exec` call, started with `background: true`, while `video_analysis_create` is processing. `<url>` is a link the sandbox can download: the original link when it points straight at a media file, otherwise the hosted URL of the confirmed upload or import (`show_medias` with type `video` lists it). Before the call, reserve an upload for the contact sheet with `media_upload` (filename `sheet.png`) and put its `upload_url` on the last line, so the sheet can be looked at by its hosted URL after `media_confirm`. The call returns a pid, a log path and a status path; poll them with a later `sandbox_exec` (`cat <status path>; tail -n 60 <log path>`) every 30 seconds or so. Whisper downloads its model on first use, so allow one to three minutes.
+Run in one `sandbox_exec` call, started with `background: true`, while `video_analysis_create` is processing. `<url>` is a link the sandbox can download: the original link when it points straight at a media file, otherwise the hosted URL of the confirmed upload or import (`show_medias` with type `video` lists it). Before the call, reserve an upload for the contact sheet with `media_upload` (filename `sheet.png`) and put its `upload_url` on the last line, so the sheet can be looked at by its hosted URL after `media_confirm`. The call returns a pid, a log path and a status path; poll them with a later `sandbox_exec` (`sleep 20; cat <status path>; tail -n 60 <log path>`). Keep each poll short: a `sleep` of at most 25 seconds and `timeout_seconds` of at most 45, because longer polls time out at the transport before the tool's own limit. Whisper downloads its model on first use, so allow one to three minutes.
+
+If `video_analysis_status` still says queued after about five minutes, do not wait for it: build the brief from the frames and the transcript, poll it again between later phases, and fold the scene analysis in if it arrives. The frames are the ground truth for look and text in any case.
 
 ```sh
 curl -fsSL -o ref.mp4 '<url>' \
 && ffprobe -v error -show_entries format=duration:stream=codec_type,width,height,r_frame_rate -of json ref.mp4 \
 && mkdir -p frames \
 && ffmpeg -v error -i ref.mp4 -vf fps=1,scale=270:-2 frames/f%03d.png \
-&& ffmpeg -v error -i ref.mp4 -vf "fps=1,scale=180:-2,tile=6x0" sheet.png \
+&& ffmpeg -v error -i ref.mp4 -vf "fps=1,scale=180:-2,tile=6x6" sheet%02d.png \
 && ffmpeg -v error -i ref.mp4 -vn -ac 1 -ar 16000 ref.wav \
 && python3 - <<'PY'
 from faster_whisper import WhisperModel
@@ -21,8 +23,10 @@ print("language:", info.language)
 for s in segs:
     print(f"{s.start:6.2f} {s.end:6.2f} {s.text.strip()}")
 PY
-curl -f -X PUT --upload-file sheet.png '<upload_url>'
+curl -f -X PUT -H 'Content-Type: image/png' --upload-file sheet01.png '<upload_url>'
 ```
+
+The `tile` filter needs both dimensions on the sandbox's ffmpeg (`6x0` is rejected, and because the command is one chain, everything after it would be skipped). A 6x6 sheet holds 36 seconds; a longer reference produces `sheet02.png` and so on, looked at as files. The PUT carries the `Content-Type` the `media_upload` result names, because the presigned URL is signed with it.
 
 Look at the contact sheet (by its hosted URL, or downloaded where the client can view images) and at individual frames for cast appearance and on-screen text. Frames are the ground truth for text and look; the scene analysis is the ground truth for structure; the transcript is the ground truth for dialogue.
 
@@ -81,6 +85,6 @@ From the product page (or the user's sentence), record:
 - The tagline, if any, verbatim.
 - The claims the page makes, as a short list. Only these, or what the user states, may be spoken in the ad.
 - The page's language, which becomes the dialogue and caption language.
-- Images: the logo and one product image. Fetch the page in the sandbox (`curl -sL '<url>'`), read the `og:image` tag and the `img` sources whose path, alt or class mentions logo, product, hero or the product's name; download the candidates, look at them, and keep the two that serve: a logo for the end card and overlays, a product image for overlays and as a product reference where the video model takes one. Import them with `media_import_url`. They are the user's own assets; nothing is taken from any other site.
+- Images: the logo, one product image, and the photo of any person the site presents as the brand's own (a founder, a face of the brand, a mascot). Fetch the page in the sandbox (`curl -sL '<url>'`), read the `og:image` tag and the `img` sources whose path, alt or class mentions logo, product, hero, portrait or the product's name; download the candidates, look at them, and keep what serves: a logo for the end card and overlays, a product image for overlays and as a product reference where the video model takes one, a person's photo for casting ([cast.md](cast.md)). Import them with `media_import_url`. They are the advertiser's own assets and may be used as they are or as references; nothing is taken from any other site.
 
 A text-only web tool gives the words; the images need the sandbox. Without either, ask the user for two lines about the product and go on without images.

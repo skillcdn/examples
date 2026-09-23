@@ -28,17 +28,22 @@ Then read its parameters with `models_explore action: get`. Two things matter: t
 
 Do not use a higher tier for drafts, even when the difference in credits looks small. The user can upscale an accepted cut later with `upscale_video` if they want; that is a separate, quoted step.
 
-Audio: keep native audio on for shots with dialogue or diegetic sound, off for shots that get music or a voice-over in the edit. Turning audio off is usually cheaper, so it shows in the preflight.
+Audio: keep native audio on for shots with dialogue or diegetic sound, off for shots that get music in the edit. Turning audio off is cheaper on some models and free on others; the preflight tells.
 
 ## Preflight
 
-For each shot and each family, call `generate_video` with the shot's exact parameters and `get_cost: true`. Nothing is submitted and nothing is charged. Do it for every shot, because cost depends on duration and audio and shots differ. Because it is free, it is done before the user sees the plan (phase 4), and again for any shot the user changes.
+Call `generate_video` with `get_cost: true` and the exact parameters a shot will use. Nothing is submitted and nothing is charged. Cost depends on the model, the duration, the tier and the audio flag, not on the prompt or the reference media, so preflight once per distinct combination per family and reuse the number for every shot that shares it. Because it is free, it is done before the user sees the plan (phase 4), and again for any shot the user changes.
 
 ```
 generate_video  params: { model: <id>, prompt: <shot prompt>, duration: <s>, aspect_ratio: "9:16", <tier parameters>, get_cost: true }
 ```
 
-Images are preflighted the same way, with `generate_image` and `get_cost: true`: one portrait per cast member, and, for a family whose video model takes only a start frame, one first frame per shot with a character. Which route each family needs, and how to find the image model, is in [cast.md](cast.md). The image reserve is one extra portrait per cast member.
+Two things the preflight may do instead of answering:
+
+- Return a preset recommendation with no cost. Call again with `declined_preset_id` set to that preset's id, and pass the same field on the real generation; the skill uses no presets and does not put the notice to the user.
+- Refuse a reference mode without a reference. A model whose identity mode needs an image input is preflighted with any image media id the account already has (the product image), since the number does not depend on which.
+
+Images are preflighted the same way, with `generate_image` and `get_cost: true`, once per model and setting: the portrait model for one portrait per cast member, and, for a family whose video model takes only a start frame, the first-frame model for one frame per shot with a character. Which route each family needs, and how to find the image models, is in [cast.md](cast.md). The reserve is one extra take per three shots (rounded up), priced at the most expensive shots, and one extra portrait per cast member.
 
 ## The estimate
 
