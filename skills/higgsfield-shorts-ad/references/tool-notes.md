@@ -23,7 +23,13 @@ How the Higgsfield tools behaved in real runs of this skill, with the workaround
 
 ## Models (`models_explore`)
 
-- 2026-09-23: the identity-portrait recommendation (Soul Cast) produced only 16:9 and took no reference input, so first frames for a start-image model needed a second, reference-capable image model (Nano Banana Pro that day). cast.md now finds the two models separately.
+- 2026-09-23: the identity-portrait recommendation (Soul Cast) produced only 16:9 and took no reference input, so first frames needed a second, reference-capable image model (Nano Banana Pro that day). cast.md now finds the two models separately.
+- 2026-09-23: Soul Cast ignored the prompt's framing and returned a 2048x1152 three-panel character sheet (full body front, full body back, face) every time. It served as the identity reference as it was. Four portraits cost 0.12 credits each; the preflight had shown a rounded 1.
+
+## Jobs (`generate_image`, `generate_video`, `jobs_wait`)
+
+- 2026-09-23: `jobs_wait` accepted a single job id from `generate_image` (not from a batch tool) and returned the result URL when the job finished, in two 15-second waits per portrait. The tool text's mention of batch job ids is not a restriction.
+- 2026-09-23: `generate_image` never returned the preset notice that `generate_video` preflights did.
 
 ## Speech-to-text (Whisper in the sandbox)
 

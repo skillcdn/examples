@@ -1,5 +1,5 @@
 {
-  "$comment": "Example shot list produced in phase 3. Values are illustrative. Costs are filled in phase 4 from get_cost preflights, never typed by hand. Portrait ids are filled in phase 5 once the user has approved them. identity_input.role is whichever role the chosen video model exposes: image_references for an identity reference, start_image for a first frame made from the portrait. The reference video is never an input.",
+  "$comment": "Example shot list produced in phase 3. Values are illustrative. Costs are filled in phase 4 from get_cost preflights, never typed by hand. Portrait ids are filled in phase 5 and first-frame ids in phase 6, once the user has approved them. Every take is animated from its first frame (start_image); the portrait also goes in the video model's identity role where it has one. The reference video is never an input.",
   "reference": "ref.mp4 (analyzed only)",
   "product": "Example sparkling water",
   "language": "en",
@@ -18,7 +18,13 @@
       "duration": 5,
       "cast": ["host"],
       "intended_line": "Okay, I did not expect this to be good.",
-      "visual": "Handheld selfie close-up in a bright kitchen at daylight. The host (mustard knit sweater, curly dark hair, gold hoop earrings) holds a slim can toward the camera, skeptical then surprised.",
+      "first_frame": {
+        "description": "Handheld selfie framing, bright kitchen at daylight, the host (mustard knit sweater, curly dark hair, gold hoop earrings) holding a slim can toward the camera, skeptical eyebrow raised, soft window light.",
+        "media_id": null,
+        "approved": false,
+        "cost_credits": null
+      },
+      "visual": "From the first frame: she tilts the can, glances at it, then back to the camera with a surprised half-smile while speaking.",
       "identity_input": { "role": "image_references", "value": null },
       "product_image": "product.png",
       "native_audio": true,
@@ -30,7 +36,13 @@
       "duration": 5,
       "cast": ["host"],
       "intended_line": "Zero sugar. Actually tastes like grapefruit.",
-      "visual": "Same kitchen, tighter shot. The host (mustard knit sweater, curly dark hair, gold hoop earrings) takes a sip, nods, small laugh.",
+      "first_frame": {
+        "description": "Same kitchen, tighter framing on the host (mustard knit sweater, curly dark hair, gold hoop earrings), can raised to her lips, eyes to camera.",
+        "media_id": null,
+        "approved": false,
+        "cost_credits": null
+      },
+      "visual": "From the first frame: she takes a sip, nods, small laugh while speaking.",
       "identity_input": { "role": "image_references", "value": null },
       "product_image": "product.png",
       "native_audio": true,
@@ -42,7 +54,13 @@
       "duration": 5,
       "cast": [],
       "intended_line": null,
-      "visual": "Product on a wet marble counter, slow push in, condensation on the can, soft window light.",
+      "first_frame": {
+        "description": "Product on a wet marble counter, condensation on the can, soft window light, shallow depth of field.",
+        "media_id": null,
+        "approved": false,
+        "cost_credits": null
+      },
+      "visual": "From the first frame: slow push in on the can, a drop of condensation runs down.",
       "identity_input": null,
       "product_image": "product.png",
       "native_audio": false,

@@ -43,22 +43,22 @@ Two things the preflight may do instead of answering:
 - Return a preset recommendation with no cost. Call again with `declined_preset_id` set to that preset's id, and pass the same field on the real generation; the skill uses no presets and does not put the notice to the user.
 - Refuse a reference mode without a reference. A model whose identity mode needs an image input is preflighted with any image media id the account already has (the product image), since the number does not depend on which.
 
-Images are preflighted the same way, with `generate_image` and `get_cost: true`, once per model and setting: the portrait model for one portrait per cast member, and, for a family whose video model takes only a start frame, the first-frame model for one frame per shot with a character. Which route each family needs, and how to find the image models, is in [cast.md](cast.md). The reserve is one extra take per three shots (rounded up), priced at the most expensive shots, and one extra portrait per cast member.
+Images are preflighted the same way, with `generate_image` and `get_cost: true`, once per model and setting: the portrait model for one portrait per cast member, and the first-frame model for one frame per shot, for both families ([cast.md](cast.md)). The reserve is one extra take per three shots (rounded up), priced at the most expensive shots, one extra portrait per cast member, and one extra frame per three shots.
 
 ## The estimate
 
 ```
-Family     Model      Tier   Video per shot        Images                              Reserve            Total
-Kling      <latest>   std    10, 10, 20, 10 = 50   2 portraits 4 + 4 first frames 8    +20 video, +4 img  86
-Seedance   <latest>   480p   15, 15, 30, 15 = 75   2 portraits 4                       +30 video, +4 img  113
+Family     Model      Tier   Video per shot        Images                              Reserve             Total
+Kling      <latest>   std    10, 10, 20, 10 = 50   2 portraits 2 + 4 first frames 8    +20 video, +4 img   84
+Seedance   <latest>   480p   15, 15, 30, 15 = 75   2 portraits 2 + 4 first frames 8    +30 video, +4 img   119
 Balance: <credits> · Free-trial unlimited generations: <available or not>
 ```
 
-The numbers above are illustrative, shaped like preflights for 5- and 10-second 9:16 shots with audio and 1k portraits. They are not current prices. Present only numbers that came back from `get_cost` in this run.
+The numbers above are illustrative, shaped like preflights for 5- and 10-second 9:16 shots with audio and 1k images. They are not current prices. Present only numbers that came back from `get_cost` in this run.
 
 The table is for the agent. The user sees, in plain words, the recommended family with its total including the reserve, the balance, and the other family's total in one line.
 
-Recommend by these, in order, and give the reason in one line: the family whose video model takes the approved portrait as an identity reference (one portrait serves every shot, so fewer images and a steadier cast); the lower total; the durations the shot list needs; native audio in the dialogue language. Then ask for one word to proceed, or the other family, or a change to the plan. The answer stands for the rest of the run. If the user later asks for more shots or more retries, re-quote first.
+Recommend by these, in order, and give the reason in one line: the family whose video model takes both a start frame and the portrait as an identity reference (a steadier cast across shots); the lower total; the durations the shot list needs; native audio in the dialogue language. Then ask for one word to proceed, or the other family, or a change to the plan. The answer stands for the rest of the run. If the user later asks for more shots or more retries, re-quote first.
 
 ## Free-trial unlimited generations
 

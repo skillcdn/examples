@@ -30,7 +30,7 @@ If none of these keeps the meaning and the delivery natural, regenerate.
 
 - Same model, same tier, same duration, same aspect ratio. Regeneration is not the moment to upgrade quality.
 - Put the intended line in the prompt verbatim, in quotes, and state explicitly that the character says exactly these words, in which language, and nothing else. Keep the visual prompt unchanged so the take still cuts with its neighbors.
-- Pass the same approved portrait as identity input, exactly as in the first take ([cast](cast.md)), so the cast stays consistent. Nothing from the reference video, ever.
+- Start from the same approved first frame and pass the same portrait as identity input, exactly as in the first take ([cast](cast.md)), so the cast and the composition stay consistent. Nothing from the reference video, ever.
 - Generate one take. Judge it by the same table.
 
 ## Retry budget

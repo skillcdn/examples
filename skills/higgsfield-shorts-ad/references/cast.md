@@ -18,16 +18,17 @@ models_explore  action: recommend  type: image  query: photoreal portrait of a f
 
 Take the recommendation for character identity that works from a text prompt alone, and read its parameters with `action: get`. Lock the cheapest setting it exposes: the lowest `resolution` or `quality`, a `budget` parameter at its minimum. A 1k image is more than the video model needs. Preflight with `generate_image` and `get_cost: true`, once per model and setting, and put the sum in the estimate.
 
-The identity model may output a single aspect ratio and take no reference input; that is fine for a portrait. First frames (below) need a different kind of model, one with an image-reference role: find it with a second `models_explore` query (`recommend`, type `image`, "photoreal scene from a reference portrait, image reference input"), lock its cheapest setting, and preflight it too. Read the video model's `aspect_ratios` and `medias[].roles` in phase 4 so that every image is made in a ratio the role accepts.
+The identity model may output a single aspect ratio, ignore the framing in the prompt and return a character sheet (front, back, face) instead of a portrait; that is fine, a sheet is a better identity reference. First frames (below) need a different kind of model, one with an image-reference role: find it with a second `models_explore` query (`recommend`, type `image`, "photoreal scene from a reference portrait, image reference input"), lock its cheapest setting, and preflight it too. Read the video model's `aspect_ratios` and `medias[].roles` in phase 4 so that every image is made in a ratio the role accepts.
 
-## Two routes into the video model
+## From portrait to take
 
-| The video model exposes | Route | Images needed |
-|---|---|---|
-| An identity role (`image_references` or similar) | The approved portrait goes into every shot of that character as the identity input | One portrait per cast member |
-| Only a `start_image` role | The portrait is turned into a 9:16 first frame for each shot, by the reference-capable image model with the portrait as its reference input and the shot's setting and pose in the prompt; that frame is the shot's `start_image` | One portrait per cast member, plus one first frame per shot with that character |
+Every shot goes through a still before it is animated, whichever family the user picked:
 
-Both routes are quoted in the estimate, and the difference is part of why the user picks one family over the other. First frames are shown to the user with the take they open, not approved separately, unless the user asks.
+1. **Portrait** (phase 5): who the character is. Approved once, reused in every shot.
+2. **First frame** (phase 6): the character in the shot. Made by the reference-capable image model, 9:16, with the portrait as its reference input and the shot's first-frame description as the prompt: framing, setting, pose, expression, light, and the product image where the product appears. A shot with no character gets a frame too (the setting, the product). One frame per shot, approved as a set.
+3. **Take** (phase 7): the frame as the video model's `start_image`, plus the portrait in its identity role (`image_references` or similar) where the model has one, and the motion, the line and the audio in the prompt.
+
+A frame costs a fraction of a take, so a wrong composition, outfit or setting is caught and redone for that fraction instead of for the price of a take. The estimate counts one frame per shot for both families, and the reserve one extra frame per three shots.
 
 ## The portrait prompt
 
@@ -45,7 +46,7 @@ One paragraph, in this order, built from the brief's cast description as rewritt
 1. Generate one portrait per cast member, one at a time, `count` 1, `use_unlim` set explicitly.
 2. Show each portrait with its hosted link and the description it was made from. Ask: approve, or what to change (age, hair, clothing, expression, setting, style).
 3. A change is a new generation from the edited description, preflighted and recorded in the ledger. The reserve covers one retry per cast member; beyond that, ask before generating.
-4. The approved portrait's media id or job id goes into the shot list. Every video prompt for that character repeats the clothing and the two or three most identifying traits, so the model has the words as well as the picture.
+4. The approved portrait's media id or job id goes into the shot list. Where the portrait differs from the written description (a longer coat, a heavier chain), the portrait wins: update the description and every prompt to match it, so the words and the picture agree. Every frame and video prompt for that character repeats the clothing and the two or three most identifying traits.
 
 When the user has said to go ahead without reviews, judge each portrait against its description yourself (age, hair, clothing, expression; no text; no artifacts) and regenerate at most once.
 
