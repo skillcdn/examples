@@ -1,0 +1,17 @@
+{
+  "name": "skillcdn",
+  "owner": {
+    "name": "SkillCDN"
+  },
+  "metadata": {
+    "description": "Skills for everyday work, one plugin per area. The same folders are served live through SkillCDN at skillcdn.ai/gh/skillcdn/skills."
+  },
+  "plugins": [
+    {
+      "name": "marketing",
+      "source": "./marketing",
+      "description": "Marketing and growth: ads, promotional video, content, campaigns. Starts with higgsfield-shorts-ad, a short-form AI ad from a reference video and a product link.",
+      "license": "MIT"
+    }
+  ]
+}

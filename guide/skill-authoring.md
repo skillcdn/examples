@@ -6,12 +6,14 @@ This page adds what this repository asks on top of the spec, and how to write th
 
 ## What this repository adds
 
+- Every skill lives in an area: `<area>/skills/<name>/`. The area's `SKILLCDN.md` says who its skills are for and adds the rules they share; a skill inherits both and restates neither.
 - Prefix the skill name with the tool family it drives (`higgsfield-…`, `github-…`) so related skills sort together. The directory name is the skill name.
-- A skill is self-contained: it links only inside its own directory, because it may be mounted alone at `.../examples/skills/<name>`. `node scripts/check.mjs` rejects a link that leaves the skill directory.
-- A skill does not restate the repository rules. They are the body of `SKILLCDN.md`, and SkillCDN hands them to the agent with every skill. A skill's own hard rules cover only what is specific to it.
-- No rendered media, screenshots or generated output. Examples ship text. Data an agent must read is small JSON in `assets/`.
+- A skill is self-contained: it links only inside its own directory, because it may be mounted alone at `.../skills/<area>/skills/<name>`, installed as part of the area's Claude Code plugin, or copied into another agent. `node scripts/check.mjs` rejects a link that leaves the skill directory.
+- A skill does not restate the rules of the repository or of its area. They are the bodies of the `SKILLCDN.md` files above it, and SkillCDN hands them to the agent before the skill's own body. A skill's own hard rules cover what is specific to it; where a shared rule takes a specific form in the skill (which step costs money, what is confirmed before it), the skill states that form, so that it stays safe when it is copied or installed without SkillCDN.
+- No rendered media, screenshots or generated output. Skills ship text. Data an agent must read is small JSON in `assets/`.
 - `license` is `MIT` unless stated. `metadata.tools` names the tool family. Quote a `version` so it stays text, and keep `metadata` flat.
-- What SkillCDN adds to the front-matter lives under `skillcdn`: `include` lists the references every run needs, relative to the skill directory, so that `get` returns them with the skill (the rest stay linked from the phase that needs them); `translations` carries a `title` and a `description` per language tag for people who read the page in that language. The `name` and the `description` stay in English, the language the manifest declares; agents read those.
+- What SkillCDN adds to the front-matter lives under `skillcdn`: `include` lists the references every run needs, relative to the skill directory, so that `get_skill` returns them with the skill (the rest stay linked from the phase that needs them); `translations` carries a `title` and a `description` per language tag for people who read the page in that language. The `name` and the `description` stay in English, the language the root manifest declares; agents read those.
+- Size: the body and the included references together stay around 16 KiB of text. `get_skill` pages the context at that size, and the rules of the repository and of the area come first on the pages. Material only some phase needs is linked from that phase, not included.
 
 ## Body skeleton
 
@@ -33,4 +35,4 @@ The spec recommends this order; every `SKILL.md` here follows it so an agent tha
 - Where a number matters (a limit, a cost), say how to obtain it at run time. A dated snapshot may illustrate the shape, clearly marked as such.
 - Decision points get a table: condition, choice, why.
 - Anything the agent must ask the user is written as the question to ask.
-- The `description` field is what search ranks first and what a client is told on connect. Write it as the sentence a user would say, ending with when to use the skill.
+- The `description` field is what search ranks first and what a client is told on connect. Write it as the sentence a user would say, ending with when to use the skill. Say when another skill in the repository is the better choice where their purposes overlap.

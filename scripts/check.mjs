@@ -1,23 +1,28 @@
 // Validates that this repository is in the SkillCDN Format. No dependencies: runs as `node scripts/check.mjs`.
 //
 // The format is specified in the SkillCDN repository (docs/specs/skill-repo.md). This script enforces its
-// required points as far as they are mechanical:
-//   1. The root has a SKILLCDN.md whose front-matter has a `description`, whose `documents` entries are
-//      directories inside the repository, and whose `language` and `translations` are well formed.
+// required points as far as they are mechanical, plus what this repository asks on top:
+//   1. The root has a SKILLCDN.md, and so does every area. A manifest's front-matter has a `description`;
+//      its `documents` entries are directories next to it; its `exclude` entries are plain paths that exist;
+//      its `language` and `translations` are well formed; its body starts with a level-one heading.
 //   2. Every SKILL.md has front-matter with a valid `name` and `description`, the name equals its directory,
 //      the body starts with a level-one heading, and what SkillCDN adds under `skillcdn` (the files that
 //      come with the skill, the translations) points at what exists and is well formed.
-//   3. A skill links only inside its own directory (it may be mounted alone). A served document links only
-//      to what is served: skills, declared document directories, the manifest.
-//   4. No rendered media or binaries; JSON assets parse; text carries no control or invisible characters.
-//   5. Every skill and every document set is listed in its catalog README and in the root README.
-// Hidden entries (any path segment starting with a dot) are ignored, as the indexer ignores them.
+//   3. Every skill lives at <area>/skills/<name>, under an area manifest; none at the root.
+//   4. A skill links only inside its own directory (it may be mounted alone). A served document links only
+//      to what an agent can reach through the mount: skills, manifests, document directories, and the
+//      README of a served folder.
+//   5. No rendered media or binaries; JSON parses; text carries no control or invisible characters.
+//   6. Every area, skill and document set is listed in its catalog README and in the root README, and every
+//      area with skills is one plugin in .claude-plugin/marketplace.json.
+// Hidden entries (any path segment starting with a dot) are ignored, as the indexer ignores them; the
+// marketplace is the one hidden file this repository maintains by hand, so it is checked on its own.
 //
 // The indexer's own verdict, with the same parser and the same limits, comes from the `check` role of the
 // SkillCDN image: from a checkout of SkillCDN, `pnpm --filter @skillcdn/server run start check <this dir>`.
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
-import { dirname, join, relative, resolve, sep } from "node:path";
+import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -41,8 +46,10 @@ const exists = (path) => {
   }
 };
 
+const MANIFEST_FILE = "SKILLCDN.md";
 const NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const LANGUAGE_TAG_RE = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8}){0,3}$/;
+const README_RE = /^readme\.(md|markdown|mdx)$/i;
 const FRONT_MATTER_MAX = 16_384;
 const MANIFEST_MAX = 262_144;
 const DESCRIPTION_MAX = 1024;
@@ -50,6 +57,7 @@ const SKILL_NAME_MAX = 64;
 const SKILL_TITLE_MAX = 200;
 const REPO_NAME_MAX = 100;
 const DOCUMENTS_MAX = 20;
+const EXCLUDE_MAX = 100;
 const INCLUDE_MAX = 20;
 const TRANSLATIONS_MAX = 32;
 // C0 and C1 controls (except tab, LF, CR), soft hyphen, zero-width and directional marks, BOM.
@@ -229,43 +237,69 @@ function checkTranslations(file, value, rules) {
   }
 }
 
-// The repository manifest. Returns the absolute paths of the declared document directories.
-function checkRepoManifest(file) {
-  if (!exists(file)) {
-    fail(file, "missing: a repository in the SkillCDN Format has a SKILLCDN.md at its root");
-    return [];
+// A path a manifest names, relative to its own directory: no absolute path, drive, backslash or `..`.
+// Returns the cleaned path, or null after reporting.
+function manifestPath(file, key, entry) {
+  const clean = String(entry).trim().replace(/\/+$/, "");
+  if (clean === "" || clean.startsWith("/") || clean.includes("\\") || /^[A-Za-z]:/.test(clean) || clean.split("/").includes("..")) {
+    fail(file, `${key}: must be a relative path inside the manifest's directory: ${entry}`);
+    return null;
   }
+  return clean;
+}
+
+// A repository manifest (the root's or an area's). Returns its directory, the absolute paths of the
+// document directories it declares (or the default `docs` next to it, when that exists), and the absolute
+// paths it excludes.
+function checkManifest(file) {
+  const dir = dirname(file);
+  const result = { dir, documentDirs: [], excluded: [] };
   const text = readFileSync(file, "utf8");
   if (text.length > MANIFEST_MAX) fail(file, `manifest longer than ${MANIFEST_MAX} characters`);
   const parsed = parseFrontMatter(text, file);
-  if (!parsed) return [];
+  if (!parsed) return result;
   const { fields, body } = parsed;
   if (typeof fields.name === "string" && fields.name.length > REPO_NAME_MAX) fail(file, `name longer than ${REPO_NAME_MAX} characters`);
   checkDescription(file, fields.description);
   if (fields.language !== undefined && !LANGUAGE_TAG_RE.test(fields.language)) fail(file, `language: "${fields.language}" is not a language tag such as en or pt-BR`);
   checkTranslations(file, fields.translations, { name: REPO_NAME_MAX, description: DESCRIPTION_MAX });
-  if (!/^\s*# /.test(body)) fail(file, "body should start with a level-one heading: the rules for every skill");
-  const documents = fields.documents ?? [];
-  if (!Array.isArray(documents)) {
+  if (!/^\s*# /.test(body)) fail(file, "body should start with a level-one heading: the rules for the skills below it");
+
+  if (fields.documents === undefined) {
+    const dflt = join(dir, "docs");
+    if (isDirectory(dflt)) result.documentDirs.push(dflt);
+  } else if (!Array.isArray(fields.documents)) {
     fail(file, "`documents` must be a sequence of directories");
-    return [];
-  }
-  if (documents.length > DOCUMENTS_MAX) fail(file, `more than ${DOCUMENTS_MAX} document directories`);
-  const dirs = [];
-  for (const entry of documents) {
-    const clean = entry.replace(/\/+$/, "");
-    if (clean.split("/").includes("..") || clean.startsWith("/") || clean.includes("\\")) {
-      fail(file, `documents entry must be a relative path inside the repository: ${entry}`);
-      continue;
+  } else {
+    if (fields.documents.length > DOCUMENTS_MAX) fail(file, `more than ${DOCUMENTS_MAX} document directories`);
+    for (const entry of fields.documents) {
+      const clean = manifestPath(file, "documents", entry);
+      if (clean === null) continue;
+      const abs = resolve(dir, clean);
+      if (!isDirectory(abs)) fail(file, `documents entry is not a directory (the indexer would report it): ${entry}`);
+      else result.documentDirs.push(abs);
     }
-    const abs = resolve(root, clean === "" ? "." : clean);
-    if (!isDirectory(abs)) {
-      fail(file, `documents entry is not a directory: ${entry}`);
-      continue;
-    }
-    dirs.push(abs);
   }
-  return dirs;
+
+  if (fields.exclude !== undefined) {
+    if (!Array.isArray(fields.exclude)) {
+      fail(file, "`exclude` must be a sequence of file or directory paths");
+    } else {
+      if (fields.exclude.length > EXCLUDE_MAX) fail(file, `more than ${EXCLUDE_MAX} excluded paths`);
+      for (const entry of fields.exclude) {
+        if (/[*?[\]{}]/.test(entry) || String(entry).startsWith("!")) {
+          fail(file, `exclude: no globs or negation, only exact files or subtrees: ${entry}`);
+          continue;
+        }
+        const clean = manifestPath(file, "exclude", entry);
+        if (clean === null) continue;
+        const abs = resolve(dir, clean);
+        if (!exists(abs)) fail(file, `exclude: no such path (a typo would withhold nothing): ${entry}`);
+        else result.excluded.push(abs);
+      }
+    }
+  }
+  return result;
 }
 
 // What SkillCDN adds under `skillcdn`: the files that come with the skill, and the translations.
@@ -307,7 +341,7 @@ function checkSkill(file, text) {
     if (name.length > SKILL_NAME_MAX) fail(file, `name longer than ${SKILL_NAME_MAX} characters`);
     if (!NAME_RE.test(name)) fail(file, `name must be lowercase letters, digits and single hyphens: ${name}`);
     const dir = dirname(file);
-    if (dir !== root && name !== dir.split(sep).pop()) fail(file, `name "${name}" differs from its directory`);
+    if (dir !== root && name !== basename(dir)) fail(file, `name "${name}" differs from its directory`);
   }
   checkDescription(file, fields.description);
   checkSkillcdnBlock(file, fields.skillcdn);
@@ -331,9 +365,45 @@ function skillRootOf(file) {
   }
 }
 
-function checkLinks(file, text, served) {
+function listedIn(catalog, needle) {
+  try {
+    return readFileSync(catalog, "utf8").includes(needle);
+  } catch {
+    return false;
+  }
+}
+
+// The layout: every manifest, every skill, and what an agent can reach through the mount.
+
+const rootManifest = join(root, MANIFEST_FILE);
+if (!exists(rootManifest)) fail(rootManifest, "missing: a repository in the SkillCDN Format has a SKILLCDN.md at its root");
+const files = walk(root);
+const manifestFiles = files.filter((f) => basename(f) === MANIFEST_FILE);
+const manifests = manifestFiles.map(checkManifest);
+const areaDirs = manifests.map((m) => m.dir).filter((d) => d !== root);
+const documentDirs = manifests.flatMap((m) => m.documentDirs);
+const excluded = manifests.flatMap((m) => m.excluded);
+const skillDirs = files.filter((f) => basename(f) === "SKILL.md").map(dirname);
+const rootReadme = join(root, "README.md");
+
+const isExcluded = (abs) => excluded.some((e) => inside(abs, e));
+// Discoverable through browse and search: the manifests, the skills and the declared document directories.
+const isDiscoverable = (abs) =>
+  !isExcluded(abs) && (manifestFiles.includes(abs) || skillDirs.some((d) => inside(abs, d)) || documentDirs.some((d) => inside(abs, d)));
+// A folder is exposed when it is the root, holds a manifest, or lies on the path to a skill or a document.
+const isExposedDir = (dir) =>
+  !isExcluded(dir) &&
+  (dir === root || manifests.some((m) => m.dir === dir) || skillDirs.some((d) => inside(d, dir)) || documentDirs.some((d) => inside(d, dir) || inside(dir, d)));
+// The README of an exposed folder is readable on demand, as an optional overview.
+const isOverview = (abs) => README_RE.test(basename(abs)) && isExposedDir(dirname(abs));
+const isReachable = (abs) => isDiscoverable(abs) || isOverview(abs) || (isDirectory(abs) && isExposedDir(abs));
+
+function checkLinks(file, text) {
   const dir = dirname(file);
   const skillRoot = skillRootOf(file);
+  // A manifest or a document under a declared directory is read through the mount, where only what is
+  // served can be followed. READMEs and guide pages are for the git host and may link anywhere inside.
+  const servedDocument = !skillRoot && isDiscoverable(file);
   const re = /\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
   for (const m of text.matchAll(re)) {
     const target = m[1];
@@ -346,44 +416,13 @@ function checkLinks(file, text, served) {
     } else if (skillRoot && !inside(abs, skillRoot)) {
       // A skill may be mounted alone, so nothing it links to may live outside its own directory.
       fail(file, `link leaves the skill directory: ${target}`);
-    } else if (!skillRoot && served.isServed(file) && !served.isServed(abs)) {
-      // A served document is read through the mount, where only served paths can be followed.
-      fail(file, `link leaves what is served (skills, declared documents, the manifest): ${target}`);
+    } else if (servedDocument && !isReachable(abs)) {
+      fail(file, `link leaves what an agent can reach through the mount (skills, manifests, document directories, the README of a served folder): ${target}`);
     } else if (!exists(abs)) {
       fail(file, `broken link: ${target}`);
     }
   }
 }
-
-function listedIn(catalog, dirName) {
-  try {
-    return readFileSync(catalog, "utf8").includes(`${dirName}/`);
-  } catch {
-    return false;
-  }
-}
-
-// Every subdirectory of `dir` is an example that must appear in the catalog next to it and in the root README.
-function checkCatalog(dir, label, needsManifest) {
-  let count = 0;
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
-    count += 1;
-    const item = join(dir, entry.name);
-    if (needsManifest && !exists(join(item, "SKILL.md"))) fail(item, "skill directory without SKILL.md");
-    if (!listedIn(join(dir, "README.md"), entry.name)) fail(item, `${label} not listed in ${toPosix(dir)}/README.md`);
-    if (!listedIn(join(root, "README.md"), entry.name)) fail(item, `${label} not listed in the root README.md catalog`);
-  }
-  return count;
-}
-
-const manifest = join(root, "SKILLCDN.md");
-const documentDirs = checkRepoManifest(manifest);
-const files = walk(root);
-const skillDirs = files.filter((f) => f.endsWith(`${sep}SKILL.md`)).map(dirname);
-const served = {
-  isServed: (abs) => abs === manifest || skillDirs.some((d) => inside(abs, d)) || documentDirs.some((d) => inside(abs, d)),
-};
 
 for (const file of files) {
   const rel = toPosix(file);
@@ -392,7 +431,7 @@ for (const file of files) {
   if (!TEXT_RE.test(rel)) continue;
   const text = readFileSync(file, "utf8");
   checkText(file, text);
-  if (MARKDOWN_RE.test(rel)) checkLinks(file, text, served);
+  if (MARKDOWN_RE.test(rel)) checkLinks(file, text);
   if (rel.endsWith("SKILL.md")) checkSkill(file, text);
   if (rel.endsWith(".json")) {
     try {
@@ -403,13 +442,99 @@ for (const file of files) {
   }
 }
 
-const skillsDir = join(root, "skills");
-const skillCount = isDirectory(skillsDir) ? checkCatalog(skillsDir, "skill", true) : 0;
+// Placement: every skill at <area>/skills/<name>, under an area manifest; nothing under a root skills/.
+for (const skillDir of skillDirs) {
+  const parent = dirname(skillDir);
+  if (basename(parent) !== "skills" || !areaDirs.includes(dirname(parent))) fail(skillDir, "a skill lives at <area>/skills/<name>, under an area with a SKILLCDN.md");
+  if (isExcluded(skillDir)) fail(skillDir, "skill inside an excluded path would not be served");
+}
+if (isDirectory(join(root, "skills"))) fail(join(root, "skills"), "skills live under an area: <area>/skills/<name>");
+
+// Catalogs: areas and their skills, then document sets.
+const areaSkillCount = (area) => skillDirs.filter((d) => dirname(d) === join(area, "skills")).length;
+for (const area of areaDirs) {
+  const name = basename(area);
+  if (dirname(area) !== root) fail(area, "an area is a directory at the repository root");
+  if (!NAME_RE.test(name)) fail(area, `area directory must be lowercase letters, digits and single hyphens: ${name}`);
+  if (!exists(join(area, "README.md"))) fail(area, "area without a README.md catalog");
+  if (!listedIn(rootReadme, `${name}/`)) fail(area, "area not listed in the root README.md");
+  const skills = join(area, "skills");
+  if (!isDirectory(skills)) continue;
+  for (const entry of readdirSync(skills, { withFileTypes: true })) {
+    if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
+    const item = join(skills, entry.name);
+    if (!exists(join(item, "SKILL.md"))) fail(item, "skill directory without SKILL.md");
+    if (!listedIn(join(area, "README.md"), `${entry.name}/`)) fail(item, `skill not listed in ${toPosix(area)}/README.md`);
+    if (!listedIn(rootReadme, `${entry.name}/`)) fail(item, "skill not listed in the root README.md catalog");
+  }
+}
 let documentSets = 0;
-for (const dir of documentDirs) documentSets += checkCatalog(dir, "document set", false);
+for (const dir of documentDirs) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
+    documentSets += 1;
+    const item = join(dir, entry.name);
+    if (!listedIn(join(dir, "README.md"), `${entry.name}/`)) fail(item, `document set not listed in ${toPosix(dir)}/README.md`);
+    if (!listedIn(rootReadme, `${entry.name}/`)) fail(item, "document set not listed in the root README.md catalog");
+  }
+}
+
+// The Claude Code marketplace: one plugin per area with skills, named after the area, sourcing its folder.
+function checkMarketplace() {
+  const file = join(root, ".claude-plugin", "marketplace.json");
+  if (!exists(file)) {
+    fail(file, "missing: one Claude Code plugin per area with skills");
+    return;
+  }
+  const text = readFileSync(file, "utf8");
+  checkText(file, text);
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (e) {
+    fail(file, `invalid JSON: ${e.message}`);
+    return;
+  }
+  if (!isMapping(data)) {
+    fail(file, "must be an object with name, owner and plugins");
+    return;
+  }
+  if (typeof data.name !== "string" || !NAME_RE.test(data.name)) fail(file, "name must be lowercase letters, digits and single hyphens");
+  if (!isMapping(data.owner) || typeof data.owner.name !== "string" || !data.owner.name) fail(file, "owner.name is required");
+  if (!Array.isArray(data.plugins)) {
+    fail(file, "`plugins` must be an array");
+    return;
+  }
+  const listed = new Set();
+  for (const plugin of data.plugins) {
+    if (!isMapping(plugin)) {
+      fail(file, "each plugin is an object with name and source");
+      continue;
+    }
+    const label = typeof plugin.name === "string" ? plugin.name : "?";
+    if (typeof plugin.name !== "string" || !NAME_RE.test(plugin.name)) fail(file, `plugin "${label}": name must be lowercase letters, digits and single hyphens`);
+    if (typeof plugin.source !== "string" || !plugin.source.startsWith("./")) {
+      fail(file, `plugin "${label}": source must be a relative path such as ./marketing`);
+      continue;
+    }
+    const abs = resolve(root, plugin.source);
+    if (!areaDirs.includes(abs)) {
+      fail(file, `plugin "${label}": source is not an area (a root directory with a SKILLCDN.md): ${plugin.source}`);
+      continue;
+    }
+    if (plugin.name !== basename(abs)) fail(file, `plugin "${label}": name differs from its area directory ${basename(abs)}`);
+    if (listed.has(abs)) fail(file, `plugin "${label}": area listed twice`);
+    listed.add(abs);
+    if (areaSkillCount(abs) === 0) fail(file, `plugin "${label}": the area has no skills yet; add the entry with its first skill`);
+  }
+  for (const area of areaDirs) {
+    if (areaSkillCount(area) > 0 && !listed.has(area)) fail(file, `area with skills is not a plugin: ${toPosix(area)}`);
+  }
+}
+checkMarketplace();
 
 if (errors.length) {
   console.error(`${errors.length} problem(s):\n${errors.map((e) => `  - ${e}`).join("\n")}`);
   process.exit(1);
 }
-console.log(`ok: ${skillCount} skill(s), ${documentSets} document set(s), ${files.length} file(s) checked`);
+console.log(`ok: ${areaDirs.length} area(s), ${skillDirs.length} skill(s), ${documentSets} document set(s), ${files.length} file(s) checked`);
