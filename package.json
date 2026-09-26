@@ -2,7 +2,7 @@
   "name": "@skillcdn/skills",
   "private": true,
   "type": "module",
-  "description": "Skills for everyday work, served through SkillCDN, and the reference repository for the SkillCDN Format. Content only; no runtime dependencies.",
+  "description": "The official skill collection of SkillCDN, served live at skillcdn.ai/gh/skillcdn/skills, and the reference repository for the SkillCDN Format. Content only; no runtime dependencies.",
   "license": "MIT",
   "scripts": {
     "check": "node scripts/check.mjs"

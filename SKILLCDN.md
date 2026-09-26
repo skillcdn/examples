@@ -1,13 +1,13 @@
 ---
 name: SkillCDN skills
-description: Skills for everyday work, one folder per area (marketing, product, engineering, and more as they are added), served live through SkillCDN and written the way SkillCDN recommends. Use to run a skill that drives a tool for a task in one of these areas, starting with Higgsfield for short-form AI ad video, or to see how a skill repository in the SkillCDN Format is written.
+description: The official skill collection of SkillCDN, building a company of agents one area of work at a time. Marketing, product and engineering today, more areas to come. Every skill drives a real tool and carries the job from the request to a result the user can hold. Use to run a skill for a task in one of these areas, starting with a short-form AI ad video on Higgsfield, or as the reference for a skill repository in the SkillCDN Format.
 documents:
   - docs
 language: en
 translations:
   ko:
     name: SkillCDN 스킬
-    description: 업무 분야별 폴더(마케팅, 기획, 개발, 그리고 앞으로 추가될 분야)로 정리된 일상 업무용 스킬 모음입니다. SkillCDN을 통해 실시간으로 제공되며 SkillCDN이 권장하는 방식으로 작성되어 있습니다. 각 분야의 도구를 다루는 스킬을 실행하거나(첫 스킬은 Higgsfield로 만드는 숏폼 AI 광고 영상입니다), SkillCDN 포맷의 스킬 저장소가 어떻게 쓰이는지 볼 때 쓰세요.
+    description: SkillCDN의 공식 스킬 모음입니다. 업무 분야를 하나씩 더해 가며 에이전트로 이루어진 회사를 만들어 갑니다. 지금은 마케팅, 기획, 개발이 있고 분야는 계속 늘어납니다. 모든 스킬은 실제 도구를 다루며, 요청부터 손에 잡히는 결과물까지 일을 끝까지 맡습니다. 각 분야의 업무에 스킬을 실행할 때(첫 스킬은 Higgsfield로 만드는 숏폼 AI 광고 영상입니다), 또는 SkillCDN 포맷 스킬 저장소의 기준으로 삼을 때 쓰세요.
 license: MIT
 metadata:
   author: skillcdn

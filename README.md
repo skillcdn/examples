@@ -1,6 +1,6 @@
 # SkillCDN skills
 
-Skills for everyday work, served live through [SkillCDN](https://github.com/skillcdn/skillcdn) and written the way SkillCDN recommends. One folder per area of work holds the skills that drive the tools of that work and the documents an agent reads beside them: marketing, product and engineering today, more areas as they are added. This is the reference repository for the [SkillCDN Format](https://github.com/skillcdn/skillcdn/blob/main/docs/specs/skill-repo.md): the shape SkillCDN proposes for a skill repository, kept working against the real tools. Fork it to publish your own skills in the same shape.
+The official skill collection of [SkillCDN](https://github.com/skillcdn/skillcdn), building a company of agents one area of work at a time. Each folder is an area of work with the skills that do it and the documents its people read: marketing, product and engineering today, more areas to come. Every skill drives a real tool and carries the job from the request to a result the user can hold, asking before anything is spent. It is also the reference repository for the [SkillCDN Format](https://github.com/skillcdn/skillcdn/blob/main/docs/specs/skill-repo.md): the shape SkillCDN proposes for a skill repository, kept working against real tools. Fork it to publish your own skills in the same shape.
 
 SkillCDN turns a git repository into an MCP server. Point an agent at an address and it gets what the address covers:
 
@@ -35,7 +35,7 @@ Areas to come, each with its first skill: design, sales, support, operations, da
 
 ## Document sets
 
-Directories of Markdown without a `SKILL.md`, read by an agent through `search_repo` and `read_repo_file` without any skill: playbooks, handbooks, product documentation. They live in [`docs/`](docs/) when they serve every area and in `<area>/docs/` when they serve one. None yet. As SkillCDN's document features grow (retrieval over larger sets, search that understands meaning), the document sets that exercise them go here.
+Directories of Markdown without a `SKILL.md`, read by an agent through `search_repo` and `read_repo_file` without any skill: the playbooks, handbooks and product documentation an area's people work from. They live in [`docs/`](docs/) when they serve every area and in `<area>/docs/` when they serve one. None yet.
 
 ## Tool families
 
