@@ -1,11 +1,11 @@
 ---
 name: Marketing
-description: Skills for marketing and growth work, such as ads, promotional video, content, campaigns and social posts. Use when the task is to make or improve something that promotes a product, brand or service, starting with a short-form AI ad video on Higgsfield.
+description: Skills for marketing and growth work, such as ads, promotional video, content, campaigns and social posts. Use when the task is to make or improve something that promotes a product, brand or service.
 license: MIT
 translations:
   ko:
     name: 마케팅
-    description: 광고, 프로모션 영상, 콘텐츠, 캠페인, 소셜 게시물 등 마케팅과 그로스 업무를 위한 스킬입니다. 제품, 브랜드, 서비스를 알리는 결과물을 만들거나 다듬을 때 쓰세요. 첫 스킬은 Higgsfield로 만드는 숏폼 AI 광고 영상입니다.
+    description: 광고, 프로모션 영상, 콘텐츠, 캠페인, 소셜 게시물 등 마케팅과 그로스 업무를 위한 스킬입니다. 제품, 브랜드, 서비스를 알리는 결과물을 만들거나 다듬을 때 쓰세요.
 metadata:
   author: skillcdn
 ---
