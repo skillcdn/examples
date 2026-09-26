@@ -387,7 +387,7 @@ const skillDirs = files.filter((f) => basename(f) === "SKILL.md").map(dirname);
 const rootReadme = join(root, "README.md");
 
 const isExcluded = (abs) => excluded.some((e) => inside(abs, e));
-// Discoverable through browse and search: the manifests, the skills and the declared document directories.
+// Discoverable through browse_repo and search_repo: the manifests, the skills and the declared document directories.
 const isDiscoverable = (abs) =>
   !isExcluded(abs) && (manifestFiles.includes(abs) || skillDirs.some((d) => inside(abs, d)) || documentDirs.some((d) => inside(abs, d)));
 // A folder is exposed when it is the root, holds a manifest, or lies on the path to a skill or a document.

@@ -1,6 +1,6 @@
 # Document sets
 
-Document sets that serve every area: directories of Markdown with no `SKILL.md`. This directory is declared in the repository manifest (`SKILLCDN.md`, `documents: [docs]`), so SkillCDN lists and searches everything here with `browse` and `search` and serves it with `read_file`, without any skill. A document set that serves one area lives in that area's `docs/` instead, discovered by default next to the area's manifest.
+Document sets that serve every area: directories of Markdown with no `SKILL.md`. This directory is declared in the repository manifest (`SKILLCDN.md`, `documents: [docs]`), so SkillCDN lists and searches everything here with `browse_repo` and `search_repo` and serves it with `read_repo_file`, without any skill. A document set that serves one area lives in that area's `docs/` instead, discovered by default next to the area's manifest.
 
 | Document set | What it is |
 |---|---|

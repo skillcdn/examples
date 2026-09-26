@@ -11,6 +11,8 @@ skillcdn.ai/gh/skillcdn/skills/marketing/skills/higgsfield-shorts-ad  one skill
 skillcdn.ai/gh/skillcdn/skills@<commit>                               pinned to a commit
 ```
 
+A host that implements the MCP skills extension receives these skills as skills: each `SKILL.md` arrives as a plain Agent Skills document with the repository's rules, the area's rules and the references every run needs inside it, listed with a digest per file under `skill://gh/skillcdn/skills/<path>`. Any other MCP client reaches the same skills through the server's tools: `browse_repo`, `search_repo`, `load_skill` and `read_repo_file`.
+
 The same folders work without SkillCDN. Every skill is a plain [Agent Skills](https://agentskills.io/specification) folder: copy `<area>/skills/<name>/` into any agent that reads `SKILL.md`. Every area with skills is a [Claude Code](https://code.claude.com/docs/en/plugins) plugin: `claude plugin marketplace add skillcdn/skills`, then `claude plugin install marketing@skillcdn`. Only through SkillCDN do the rules in [SKILLCDN.md](SKILLCDN.md) and the area's manifest arrive with every skill; a copied or installed skill relies on its own hard rules.
 
 ## Areas
@@ -33,7 +35,7 @@ Areas to come, each with its first skill: design, sales, support, operations, da
 
 ## Document sets
 
-Directories of Markdown without a `SKILL.md`, read by an agent through `search` and `read_file` without any skill: playbooks, handbooks, product documentation. They live in [`docs/`](docs/) when they serve every area and in `<area>/docs/` when they serve one. None yet. As SkillCDN's document features grow (retrieval over larger sets, search that understands meaning), the document sets that exercise them go here.
+Directories of Markdown without a `SKILL.md`, read by an agent through `search_repo` and `read_repo_file` without any skill: playbooks, handbooks, product documentation. They live in [`docs/`](docs/) when they serve every area and in `<area>/docs/` when they serve one. None yet. As SkillCDN's document features grow (retrieval over larger sets, search that understands meaning), the document sets that exercise them go here.
 
 ## Tool families
 
@@ -55,10 +57,11 @@ This repository takes no pull requests. It is meant to be forked: the layout, th
 
 1. Fork the repository, or copy it into a new one.
 2. In `SKILLCDN.md`, set `name`, `description`, `translations` and `metadata.author` to yours. Keep the rules that hold for you; change the rest.
-3. Keep the areas you need and delete the others. A new area is a folder with a `SKILLCDN.md` and a `README.md`; the steps are in [guide/adding.md](guide/adding.md).
-4. Write your skills at `<area>/skills/<name>/`, following [guide/skill-authoring.md](guide/skill-authoring.md). Run `node scripts/check.mjs`; CI runs it on every push.
-5. Rewrite this README for your repository. In `.claude-plugin/marketplace.json`, set `name` and `owner` to yours and list the areas that have skills.
-6. Connect it at `skillcdn.ai/gh/<you>/<repo>`. A public repository needs no setup.
+3. Keep a license SkillCDN can pass on. It serves a skill in full only under a license it recognizes as permissive, taken from the skill's directory, its `license` field, the manifests above it or the repository's license file; under a restrictive or unrecognized license the skill is only described, with a link to its source.
+4. Keep the areas you need and delete the others. A new area is a folder with a `SKILLCDN.md` and a `README.md`; the steps are in [guide/adding.md](guide/adding.md).
+5. Write your skills at `<area>/skills/<name>/`, following [guide/skill-authoring.md](guide/skill-authoring.md). Run `node scripts/check.mjs`; CI runs it on every push.
+6. Rewrite this README for your repository. In `.claude-plugin/marketplace.json`, set `name` and `owner` to yours and list the areas that have skills.
+7. Connect it at `skillcdn.ai/gh/<you>/<repo>`. A public repository needs no setup.
 
 The rules for changing anything, for people and agents alike, are in [CLAUDE.md](CLAUDE.md); a fork keeps them or changes them. A skill here that no longer works can be reported in an issue.
 
@@ -78,7 +81,7 @@ scripts/          check.mjs, the validation CI runs
 .claude-plugin/   the Claude Code marketplace: one plugin per area with skills
 ```
 
-What an agent connected through SkillCDN gets: the skills, the manifests and the document sets are discoverable with `browse` and `search`; this README, an area's README and the pages they link are readable on demand with `read_file`; everything else stays on the git host.
+What an agent connected through SkillCDN gets: the skills, the manifests and the document sets are discoverable with `browse_repo` and `search_repo`, and the skills are listed through the MCP skills extension; this README, an area's README and the pages they link are readable on demand with `read_repo_file`; everything else stays on the git host.
 
 ```sh
 node scripts/check.mjs    # validates manifests, front-matter, catalogs, links and text; needs Node.js 24, no install
@@ -88,6 +91,6 @@ From a checkout of SkillCDN, `pnpm --filter @skillcdn/server run start check ../
 
 ## License
 
-The content of this repository is under the [MIT License](LICENSE.md). "SkillCDN" is a trademark of KDX Labs Corp. The tools the skills drive are third-party products with their own terms.
+The content of this repository is under the [MIT License](LICENSE.md), a license SkillCDN recognizes as permissive, which is why it serves these skills in full. "SkillCDN" is a trademark of KDX Labs Corp.; its [trademark policy](https://github.com/skillcdn/skillcdn/blob/main/TRADEMARKS.md) allows everyone the file name `SKILLCDN.md`, the `skillcdn` front-matter key and the name of the format, so a fork keeps them. The tools the skills drive are third-party products with their own terms.
 
 Built by KDX Labs. Copyright (c) 2026 KDX Labs Corp.

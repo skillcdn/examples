@@ -47,7 +47,7 @@ All from the Higgsfield MCP server. Check that they are callable before the firs
 | `jobs_wait`, `show_generation_by_ids` | Collecting a finished job. |
 | `balance` | Credits before the cost is presented. |
 
-Optional: any web-reading tool for the product page's text. No text-to-speech. In a client without the upload widget everything comes in as links. The references this skill links come with it when the server returns them; when only their list came, read each with `read_file` before the phase that links it. How these tools behaved in real runs is in [tool-notes.md](references/tool-notes.md); know it before phase 2.
+Optional: any web-reading tool for the product page's text. No text-to-speech. In a client without the upload widget everything comes in as links. The references this skill links come with it when the server returns them; when only their list came, read each with `read_repo_file` before the phase that links it. How these tools behaved in real runs is in [tool-notes.md](references/tool-notes.md); know it before phase 2.
 
 ## Inputs
 

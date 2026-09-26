@@ -1,6 +1,6 @@
 # Authoring guide
 
-How skills in this layout are written, for whoever maintains this repository or a fork of it. Nothing here is discoverable through SkillCDN: the manifests declare only `docs/` directories as documents, so these pages never appear in an agent's `browse` or `search` results. An agent can still read the pages the root `README.md` links (`skill-authoring.md`, `adding.md`) on demand, which is why they say nothing that an agent running a skill should not see.
+How skills in this layout are written, for whoever maintains this repository or a fork of it. Nothing here is discoverable through SkillCDN: the manifests declare only `docs/` directories as documents, so these pages never appear in an agent's `browse_repo` or `search_repo` results. An agent can still read the pages the root `README.md` links (`skill-authoring.md`, `adding.md`) on demand, which is why they say nothing that an agent running a skill should not see.
 
 | Document | Purpose |
 |---|---|

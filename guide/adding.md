@@ -9,7 +9,7 @@ A repository in this layout, this one or a fork of it, grows one piece at a time
 3. Put anything longer than a paragraph in `references/`, and link each reference from the phase that uses it. List the references every run needs in `skillcdn.include` in the front-matter, so that they arrive with the skill. Data files go in `assets/`. Never link outside the skill directory.
 4. Do not restate the repository's or the area's rules; they arrive with the skill. Name the tools the skill requires in "Requirements", with what to do when one is missing.
 5. Add one row to the table in `<area>/README.md` and one to the "Skills" table in the root `README.md`. If it is the area's first skill, update the area's row in the root `README.md` and add the area to `.claude-plugin/marketplace.json` (below).
-6. Run `node scripts/check.mjs`. Fix what it reports. With a checkout of SkillCDN at hand, `pnpm --filter @skillcdn/server run start check <path to this repository>` shows what an agent would get, with the indexer's own parser.
+6. Run `node scripts/check.mjs`. Fix what it reports. With a checkout of SkillCDN at hand, `pnpm --filter @skillcdn/server run start check <path to this repository>` shows what an agent would get, with the indexer's own parser: the connection instructions, each skill's license, and whether the MCP skills extension lists it.
 7. Add a `translations` entry for each language you can write, under `skillcdn` in the skill, so that people who read the page in that language see what the skill is.
 8. Try the skill end to end with an agent that has the required tools, from a fresh session, following only what the files say. Whatever you had to explain in chat is missing from the skill: add it.
 9. Commit as `feat(<area>): add <name>`.
@@ -36,7 +36,7 @@ The first skill for a tool that the repository does not cover yet also needs:
 
 ## A new document set
 
-A document set is a directory of Markdown without a `SKILL.md`, under a document directory: `docs/` at the root for what serves every area, `<area>/docs/` for what serves one. SkillCDN lists and searches it through `browse` and `search` and serves it through `read_file`; no skill is needed.
+A document set is a directory of Markdown without a `SKILL.md`, under a document directory: `docs/` at the root for what serves every area, `<area>/docs/` for what serves one. SkillCDN lists and searches it through `browse_repo` and `search_repo` and serves it through `read_repo_file`; no skill is needed.
 
 1. Create `<docs>/<name>/` with a `README.md` that says what the set is and how it is organized. For the first set of an area, create `<area>/docs/README.md` as the area's document catalog as well.
 2. Give each document a front-matter `title` and `description`, or a level-one heading followed by one summary paragraph, because that is what search shows.
